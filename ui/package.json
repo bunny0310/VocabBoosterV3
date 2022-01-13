@@ -3,9 +3,24 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "@capacitor/core": "3.3.3",
+    "@capacitor/app": "1.0.7",
+    "@capacitor/core": "3.3.4",
+    "@capacitor/haptics": "1.1.3",
+    "@capacitor/ios": "3.3.4",
+    "@capacitor/keyboard": "1.2.0",
+    "@capacitor/status-bar": "1.0.6",
     "@ionic/react": "^6.0.0",
     "@ionic/react-router": "^6.0.0",
+    "@progress/kendo-drawing": "^1.16.1",
+    "@progress/kendo-licensing": "^1.2.1",
+    "@progress/kendo-react-dateinputs": "^4.13.0",
+    "@progress/kendo-react-dropdowns": "^4.13.0",
+    "@progress/kendo-react-form": "^4.13.0",
+    "@progress/kendo-react-inputs": "^4.13.0",
+    "@progress/kendo-react-intl": "^4.13.0",
+    "@progress/kendo-react-labels": "^4.13.0",
+    "@progress/kendo-react-treeview": "^4.13.0",
+    "@progress/kendo-react-upload": "^4.13.0",
     "@testing-library/jest-dom": "^5.11.9",
     "@testing-library/react": "^11.2.5",
     "@testing-library/user-event": "^12.6.3",
@@ -16,15 +31,18 @@
     "@types/react-router": "^5.1.11",
     "@types/react-router-dom": "^5.1.7",
     "axios": "^0.24.0",
+    "formik": "^2.2.9",
     "inversify": "^6.0.1",
     "ionicons": "^5.4.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
+    "react-hook-form": "^7.23.0",
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.2",
     "reflect-metadata": "^0.1.13",
     "typescript": "^4.1.3",
+    "use-state-with-callback": "^2.0.3",
     "web-vitals": "^0.2.4",
     "workbox-background-sync": "^5.1.4",
     "workbox-broadcast-update": "^5.1.4",
@@ -37,7 +55,8 @@
     "workbox-range-requests": "^5.1.4",
     "workbox-routing": "^5.1.4",
     "workbox-strategies": "^5.1.4",
-    "workbox-streams": "^5.1.4"
+    "workbox-streams": "^5.1.4",
+    "yup": "^0.32.11"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -64,7 +83,7 @@
     ]
   },
   "devDependencies": {
-    "@capacitor/cli": "3.3.3"
+    "@capacitor/cli": "3.3.4"
   },
   "description": "An Ionic project"
 }

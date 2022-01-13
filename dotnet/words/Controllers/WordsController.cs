@@ -3,6 +3,7 @@ using database.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using words.Models;
+using words.Util;
 
 namespace words.Controllers
 {
@@ -16,11 +17,10 @@ namespace words.Controllers
         {
             this.serviceFactory = serviceFactory;
         }
-        [HttpGet(Name = "GetWords")]
-        public async Task<List<Word>> Get(int limit = 5, int offset = 0)
+        [HttpGet]
+        public async Task<List<Word>> Get([FromQuery] SearchWordsApiRequest requestBody, int limit = 5, int offset = 0)
         {
-            var words = await serviceFactory.WordsService().GetWords(limit, offset);
-            return words;
+            return await serviceFactory.WordsService().GetWords(limit, offset, requestBody);
         }
         [HttpPost]
         [Route("SearchWordsNameOnly")]
@@ -29,5 +29,11 @@ namespace words.Controllers
             var words = await serviceFactory.WordsService().SearchWordsNameOnly(requestBody);
             return words;
         }
+
+        [HttpPost]
+        public async Task<Word> PostWord([FromBody] Word body) {
+            var word = await serviceFactory.WordsService().AddWord(body);
+            return word;
+        } 
     }
 }

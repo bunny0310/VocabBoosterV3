@@ -85,9 +85,7 @@ export class Word extends React.Component<WordModel, WordState> {
           <IonCardHeader>
             <IonCardSubtitle>{this.props.meaning}</IonCardSubtitle>
             <IonCardTitle>{this.capitalize(this.props.name)}</IonCardTitle>
-            <IonCardTitle>
-              <IonNote color="primary">{this.state.information}</IonNote>
-            </IonCardTitle>
+            <IonNote color="primary">{this.state.information}</IonNote>
             <IonCardTitle>
               <IonChip
                 outline={

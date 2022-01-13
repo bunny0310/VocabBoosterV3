@@ -33,11 +33,15 @@ import container from './SettingsManager';
 import { IWordsApiClient } from './api_clients/IWordsApiClient';
 import { WordModel } from './api_clients/WordsApiClient';
 import { Words } from './pages/Words';
+import { AddEditWord } from './pages/AddEditWord';
+import React from 'react';
 
 setupIonicReact();
 
 export const _wordsApi = container.get<IWordsApiClient>("IWordsApiClient");
+
 const App: React.FC = () => {  
+
   return (
     <IonApp>
       <IonHeader>
@@ -55,6 +59,7 @@ const App: React.FC = () => {
                   <Words></Words>
                 </Route>
                 <Route exact path="/tab2">
+                  <AddEditWord />
                 </Route>
                 <Route path="/tab3">
                 </Route>

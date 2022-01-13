@@ -16,20 +16,20 @@ namespace database.Models {
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; }
+        public string? Id { get; set; }
 
         [BsonElement("createdAt")]
-        public DateTime CreatedAt { get; set; } =  DateTime.UtcNow;
+        public DateTime? CreatedAt { get; set; } =  DateTime.UtcNow;
 
         [BsonElement("updatedAt")]
-        public DateTime UpdatedAt { get; set; } =  DateTime.UtcNow;
+        public DateTime? UpdatedAt { get; set; } =  DateTime.UtcNow;
             
         [BsonElement("name")]
         public string Name { get; set; }
 
         [BsonRepresentation(BsonType.ObjectId)]
         [BsonElement("user")]
-        public string UserId { get; set; }
+        public string? UserId { get; set; }
 
         [BsonElement("meaning")]
         public string Meaning {get; set;}
@@ -47,7 +47,7 @@ namespace database.Models {
         public List<string> Types {get; set;}
 
         [BsonElement("__v")]
-        public int V { get; set; }
+        public int? V { get; set; }
 
     }
 }

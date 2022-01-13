@@ -1,20 +1,27 @@
 import {
-    CheckboxChangeEventDetail,
+  CheckboxChangeEventDetail,
   IonButton,
   IonButtons,
   IonCard,
   IonCardContent,
   IonCheckbox,
   IonContent,
+  IonHeader,
   IonIcon,
   IonInput,
   IonItem,
   IonLabel,
+  IonList,
+  IonListHeader,
   IonModal,
+  IonNote,
+  IonProgressBar,
   IonSearchbar,
+  IonText,
   IonToolbar,
+  SearchbarChangeEventDetail,
 } from "@ionic/react";
-import { closeCircleOutline, ellipsisVertical } from "ionicons/icons";
+import { closeCircleOutline, ellipsisVertical, searchCircle } from "ionicons/icons";
 import React, { createRef } from "react";
 import { _wordsApi } from "../App";
 
@@ -23,127 +30,201 @@ interface SearchModalProps {
   modalHandler: () => void;
 }
 
-export interface SearchWordsApiRequest {
-    searchByName: boolean;
-    searchByMeaning: boolean;
-    searchBySentences: boolean;
-    searchBySynonyms: boolean;
-    searchByTags: boolean;
-    searchByType: boolean;
-    name: string;
-    meaning: string;
-    sentences: string[];
-    synonyms: string[];
-    tags: string[];
-    type: string
+export interface SearchWordsApiRequestBase {
+  searchByName: boolean;
+  searchByMeaning: boolean;
+  searchBySentences: boolean;
+  searchBySynonyms: boolean;
+  searchByTags: boolean;
+  searchByType: boolean;
+}
+
+export interface SearchWordsApiRequest extends SearchWordsApiRequestBase {
+  searchValue: string;
 }
 
 enum SearchOption {
-    Name,
-    Meaning,
-    Sentences,
-    Synonyms,
-    Tags,
-    Type
+  Name,
+  Meaning,
+  Sentences,
+  Synonyms,
+  Tags,
+  Type,
 }
 
 export const SearchModal = (props: SearchModalProps) => {
-    const searchbarRef = createRef<HTMLIonSearchbarElement>();
-    const [showAdvancedOptions, setShowAdvancedOptions] = React.useState<boolean>(false);
-    const checkboxList: SearchOption[] = [
-        SearchOption.Name,
-        SearchOption.Meaning, 
-        SearchOption.Sentences,
-        SearchOption.Synonyms,
-        SearchOption.Tags,
-        SearchOption.Type,
-    ];
+  const searchbarRef = createRef<HTMLIonSearchbarElement>();
+  const [searchValue, setSearchValue] = React.useState<string>("");
+  const [showAdvancedOptions, setShowAdvancedOptions] =
+    React.useState<boolean>(false);
+  const checkboxList: SearchOption[] = [
+    SearchOption.Name,
+    SearchOption.Meaning,
+    SearchOption.Sentences,
+    SearchOption.Synonyms,
+    SearchOption.Tags,
+    SearchOption.Type,
+  ];
 
-    const defaultSelectedOptions = checkboxList.map(so => false);
-    defaultSelectedOptions[0] = true;
-    const [selectedOptions, setSelectedOptions] = React.useState<boolean[]>(defaultSelectedOptions);
+  const defaultSelectedOptions = checkboxList.map((so) => false);
+  defaultSelectedOptions[0] = true;
+  const [selectedOptions, setSelectedOptions] = React.useState<boolean[]>(
+    defaultSelectedOptions
+  );
+  const [searchedWords, setSearchedWords] = React.useState<string[]>([]);
+  const [loading, setLoading] = React.useState<boolean>(false);
 
-    React.useEffect(() => {
-        const getSearchResults = async () => {
-            const postRequest = generateSearchWordPostRequest();
-            const words = await _wordsApi.searchWordsNameOnly(postRequest);
-            console.log(words);
-        }
-        if (searchbarRef.current) {
-            showAdvancedOptions ? searchbarRef.current?.blur() : searchbarRef.current?.setFocus()
-            }
-            setTimeout(() => {
-            if (searchbarRef.current) {
-                showAdvancedOptions ? searchbarRef.current?.blur() : searchbarRef.current?.setFocus()
-            }
-            }, 1000);
-            if (!showAdvancedOptions) {
-                getSearchResults();
-            }
-    }, [showAdvancedOptions, searchbarRef])
+  const constructBasePostRequest = () => {
+    const postRequest: SearchWordsApiRequestBase = {
+      searchByName: selectedOptions[SearchOption.Name],
+      searchByMeaning: selectedOptions[SearchOption.Meaning],
+      searchBySentences: selectedOptions[SearchOption.Sentences],
+      searchBySynonyms: selectedOptions[SearchOption.Synonyms],
+      searchByTags: selectedOptions[SearchOption.Tags],
+      searchByType: selectedOptions[SearchOption.Type],
+    };
+    return postRequest;
+  };
 
-    const generateSearchWordPostRequest = (): SearchWordsApiRequest => {
-        const postRequest: SearchWordsApiRequest = {
-            searchByName: selectedOptions[SearchOption.Name],
-            searchByMeaning: selectedOptions[SearchOption.Meaning],
-            searchBySentences: selectedOptions[SearchOption.Sentences],
-            searchBySynonyms: selectedOptions[SearchOption.Synonyms],
-            searchByTags: selectedOptions[SearchOption.Tags],
-            searchByType: selectedOptions[SearchOption.Type],
-            name: searchbarRef.current?.value ?? "",
-            meaning: searchbarRef.current?.value ?? "",
-            sentences: [searchbarRef.current?.value ?? ""],
-            synonyms: [searchbarRef.current?.value ?? ""],
-            tags: [searchbarRef.current?.value ?? ""],
-            type: searchbarRef.current?.value ?? "",
-        }
-        return postRequest
+  React.useCallback(() => {
+    setLoading(true);
+    const constructPostRequest = () => {
+      return {
+        ...constructBasePostRequest(),
+        searchValue: searchbarRef.current?.value ?? "",
+      };
+    };
+    const getSearchResults = async () => {
+      const postRequest = constructPostRequest();
+      setSearchedWords(await _wordsApi.searchWordsNameOnly(postRequest));
+      setLoading(false);
+    };
+    if (searchbarRef.current) {
+      showAdvancedOptions
+        ? searchbarRef.current?.blur()
+        : searchbarRef.current?.setFocus();
     }
+    setTimeout(() => {
+      if (searchbarRef.current) {
+        showAdvancedOptions
+          ? searchbarRef.current?.blur()
+          : searchbarRef.current?.setFocus();
+      }
+    }, 1000);
+    if (!showAdvancedOptions) {
+      getSearchResults();
+    }
+  }, [showAdvancedOptions, searchbarRef]);
 
-    const modalHandler = (): void => {
-        props.modalHandler();
-        setShowAdvancedOptions(false)
+  const modalHandler = (): void => {
+    props.modalHandler();
+    setShowAdvancedOptions(false);
+  };
+  const searchOptionsHandler = (
+    e: CustomEvent<CheckboxChangeEventDetail>
+  ): void => {
+    const val = e.detail.value as SearchOption;
+    const selectedOptionsClone = selectedOptions.map((so, i) =>
+      i === val ? !so : so
+    );
+    setSelectedOptions(selectedOptionsClone);
+  }
+
+  const searchHandler = (e: CustomEvent<SearchbarChangeEventDetail>) => {
+    const val = e.detail.value;
+    setShowAdvancedOptions(false);
+    setLoading(true);
+    setSearchValue(val ?? "");
+    const getSearchResults = async () => {
+      if (val == null) {
+        setSearchedWords([]);
+        return;
+      }
+      const postRequest: SearchWordsApiRequest = {
+        ...constructBasePostRequest(),
+        searchValue: val,
+      };
+      setSearchedWords(await _wordsApi.searchWordsNameOnly(postRequest));
+      setLoading(false);
+      console.log(searchedWords)
     }
-    const searchOptionsHandler = (e: CustomEvent<CheckboxChangeEventDetail>): void => {
-        const val = (e.detail.value as SearchOption);
-        const selectedOptionsClone = selectedOptions.map((so, i) => i === val ? !so : so);
-        setSelectedOptions(selectedOptionsClone)
-    }
-    return (
-        <IonModal isOpen={props.showModal}>
+    getSearchResults()
+  }
+
+  return (
+    <IonModal isOpen={props.showModal}>
+        <IonHeader>
             <IonToolbar>
-            <IonSearchbar
+                <IonSearchbar
                 id={"searchBar"}
                 placeholder={"Search for a word"}
                 showCancelButton="always"
                 onIonCancel={modalHandler}
+                onIonChange={searchHandler}
                 ref={searchbarRef}
-            ></IonSearchbar>
-            <IonButtons slot="end">
-                <IonButton onClick={() => {
-                    setShowAdvancedOptions(!showAdvancedOptions);
-                    }}>
-                    <IonIcon icon={showAdvancedOptions ? closeCircleOutline : ellipsisVertical}></IonIcon>
-                </IonButton>
-            </IonButtons>
+                ></IonSearchbar>
+                <IonButtons slot="end">
+                    <IonButton
+                        onClick={() => {
+                        setShowAdvancedOptions(!showAdvancedOptions);
+                        }}
+                    >
+                        <IonIcon
+                        icon={showAdvancedOptions ? closeCircleOutline : ellipsisVertical}
+                        ></IonIcon>
+                    </IonButton>
+                </IonButtons>
             </IonToolbar>
-            <IonContent>
-                <IonCard style={{"display": showAdvancedOptions ? 'block' : 'none'}}>
-                    <IonCardContent>
-                        {selectedOptions.map(so => so)}
+            {loading && <IonProgressBar type="indeterminate"></IonProgressBar>}
+        </IonHeader>
+        <IonContent>
+            {showAdvancedOptions && (
+            <IonCard>
+                <IonCardContent>
+                    {selectedOptions.map((so) => so)}
+                    <IonList>
                         {checkboxList.map((searchOption, i) => {
                             return (
-                                <>
+                            <>
                                 <IonItem key={i}>
-                                {SearchOption[searchOption]}
-                                <IonCheckbox value={searchOption} checked={selectedOptions[searchOption]} onIonChange={searchOptionsHandler}></IonCheckbox>
+                                    <IonLabel>
+                                        {SearchOption[searchOption]}
+                                    </IonLabel>
+                                    <IonCheckbox
+                                        value={searchOption}
+                                        checked={selectedOptions[searchOption]}
+                                        onIonChange={searchOptionsHandler}
+                                    ></IonCheckbox>
                                 </IonItem>
-                                </>
-                            )
+                            </>
+                            );
                         })}
-                    </IonCardContent>
-                </IonCard>
-            </IonContent>
-        </IonModal>
-        );
-    };
+                    </IonList>
+                </IonCardContent>
+            </IonCard>
+            )}
+            {!loading && 
+                <>
+                    {searchValue.trimStart().trimEnd() !== "" && <IonItem>
+                        <IonIcon icon={searchCircle}></IonIcon>
+                        <IonText color={"dark"}>{`Search for "${searchValue}" in words`}</IonText>
+                    </IonItem>}
+                    {searchedWords.length !== 0 && 
+                    <>
+                    <IonListHeader>
+                        <IonNote color={"dark"}>
+                            Suggested word searches
+                        </IonNote>
+                    </IonListHeader>
+                        <IonList>
+                            {searchedWords.map((wordName, i) => {
+                                return (<IonItem key={i}>{wordName}</IonItem>)
+                            })}
+                        </IonList>
+                    </>}
+                </>
+            }
+        </IonContent>
+    </IonModal>
+  );
+};
