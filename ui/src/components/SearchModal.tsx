@@ -23,11 +23,14 @@ import {
 } from "@ionic/react";
 import { closeCircleOutline, ellipsisVertical, searchCircle } from "ionicons/icons";
 import React, { createRef } from "react";
-import { _wordsApi } from "../App";
+import { useHistory } from "react-router";
+import { SearchWordResponse } from "../api_clients/WordsApiClient";
+import { _messageBus, _wordsApi } from "../App";
+import { Messages } from "../services/MessageBus";
 
 interface SearchModalProps {
   showModal: boolean;
-  modalHandler: () => void;
+  modalHandler: (e: CustomEvent<void>, id?: string) => void;
 }
 
 export interface SearchWordsApiRequestBase {
@@ -53,10 +56,13 @@ enum SearchOption {
 }
 
 export const SearchModal = (props: SearchModalProps) => {
+
+  const history = useHistory();
   const searchbarRef = createRef<HTMLIonSearchbarElement>();
   const [searchValue, setSearchValue] = React.useState<string>("");
-  const [showAdvancedOptions, setShowAdvancedOptions] =
-    React.useState<boolean>(false);
+  const [showAdvancedOptions, setShowAdvancedOptions] = React.useState<boolean>(false);
+  _messageBus.on(Messages.CloseSearchModal, () => props.modalHandler);
+
   const checkboxList: SearchOption[] = [
     SearchOption.Name,
     SearchOption.Meaning,
@@ -65,13 +71,12 @@ export const SearchModal = (props: SearchModalProps) => {
     SearchOption.Tags,
     SearchOption.Type,
   ];
-
   const defaultSelectedOptions = checkboxList.map((so) => false);
   defaultSelectedOptions[0] = true;
   const [selectedOptions, setSelectedOptions] = React.useState<boolean[]>(
     defaultSelectedOptions
   );
-  const [searchedWords, setSearchedWords] = React.useState<string[]>([]);
+  const [searchedWords, setSearchedWords] = React.useState<SearchWordResponse[]>([]);
   const [loading, setLoading] = React.useState<boolean>(false);
 
   const constructBasePostRequest = () => {
@@ -116,9 +121,9 @@ export const SearchModal = (props: SearchModalProps) => {
     }
   }, [showAdvancedOptions, searchbarRef]);
 
-  const modalHandler = (): void => {
-    props.modalHandler();
+  const modalHandler = (e: any, id?: string): void => {
     setShowAdvancedOptions(false);
+    props.modalHandler(e, id);
   };
   const searchOptionsHandler = (
     e: CustomEvent<CheckboxChangeEventDetail>
@@ -217,8 +222,13 @@ export const SearchModal = (props: SearchModalProps) => {
                         </IonNote>
                     </IonListHeader>
                         <IonList>
-                            {searchedWords.map((wordName, i) => {
-                                return (<IonItem key={i}>{wordName}</IonItem>)
+                            {searchedWords.map((searchedWord, i) => {
+                                return (<IonItem key={i} onClick={(e: any) => {
+                                  history.push(`/addeditword/${searchedWord.id}`);
+                                }
+                                }>
+                                  {searchedWord.name}
+                                </IonItem>)
                             })}
                         </IonList>
                     </>}

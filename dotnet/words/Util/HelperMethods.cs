@@ -1,5 +1,5 @@
 ﻿using System;
-using words.Models;
+using core.Models.Request;
 
 namespace words.Util
 {

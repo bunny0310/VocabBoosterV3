@@ -40,6 +40,17 @@ export const defaultSearchWordsQueryModel: SearchWordsQueryModel = {
     q: ""
 }
 
+export interface SearchWordResponse {
+    id: string,
+    name: string
+}
+
+export interface ApiOutcome<T> {
+    data?: T,
+    error?: any,
+    code?: number
+}
+
 @injectable()
 export class WordsApiClient implements IWordsApiClient {
     getWords = async (limit: number, offset: number) => {
@@ -55,6 +66,32 @@ export class WordsApiClient implements IWordsApiClient {
         return words;
     }
 
+    getWord = async (id: string): Promise<ApiOutcome<WordModel>> => {
+        if (!id || id.trim() === '') {
+            return {
+                data: undefined,
+                error: "Bad Request",
+                code: 400
+            };
+        }
+        try {
+            const response = await axios
+            .get<WordModel>(`${baseUrl}/${id}`);
+            const word = await response.data;
+            const code = await response.status;
+            return {
+                data: word,
+                code
+            };
+        }
+        catch (error: any) {
+            return {
+                code: await error.response.status,
+                error: "Internal Server Error"
+            }
+        }
+    }
+
     private generateWordsQuery = (searchWordsQueryModel: SearchWordsQueryModel) => {
         const {filter, limit, offset, searchByName, searchByMeaning, searchBySentences, searchBySynonyms, searchByTags, q} = searchWordsQueryModel
         return `${baseUrl}?limit=${limit}&offset=${offset}&filter=${filter}&searchByName=${searchByName}&searchByMeaning=${searchByMeaning}&searchBySentences=${searchBySentences}&searchBySynonyms=${searchBySynonyms}&searchByTags=${searchByTags}&q=${q}`
@@ -62,7 +99,7 @@ export class WordsApiClient implements IWordsApiClient {
     
     searchWordsNameOnly = async (postRequest: SearchWordsApiRequest) => {
         const response = await axios
-        .post<string[]>(`${baseUrl}/SearchWordsNameOnly`, postRequest);
+        .post<SearchWordResponse[]>(`${baseUrl}/SearchWordsNameOnly`, postRequest);
 
         const words = await response.data;
         return words;
@@ -72,6 +109,20 @@ export class WordsApiClient implements IWordsApiClient {
         try {
             const response = await axios
             .post<WordModel>(`${baseUrl}`, body);
+    
+            const data = await response.data;
+            return data.id!;
+        }
+        catch(error: any) {
+            console.log(error);
+            return undefined;
+        }
+    };
+
+    editWord = async (body: WordModel): Promise<string|undefined> => {
+        try {
+            const response = await axios
+            .put<WordModel>(`${baseUrl}`, body);
     
             const data = await response.data;
             return data.id!;

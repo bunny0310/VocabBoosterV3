@@ -1,6 +1,7 @@
 import React, { MouseEventHandler, ReactDOM } from "react";
 import { WordModel } from "../api_clients/WordsApiClient";
 import {
+  IonButtons,
   IonCard,
   IonCardContent,
   IonCardHeader,
@@ -13,7 +14,8 @@ import {
   IonList,
   IonNote,
 } from "@ionic/react";
-import { closeCircleOutline, layers, pricetag, repeat } from "ionicons/icons";
+import { closeCircleOutline, layers, pencil, pricetag, repeat } from "ionicons/icons";
+import { RouteComponentProps, RouteProps, RouterProps, withRouter } from "react-router-dom";
 
 enum WordViewOption {
   None,
@@ -27,8 +29,12 @@ interface WordState {
   information: string;
 }
 
-export class Word extends React.Component<WordModel, WordState> {
-  constructor(props: WordModel) {
+interface WordProps extends WordModel, RouteComponentProps {
+
+}
+
+export class Word extends React.Component<WordProps, WordState> {
+  constructor(props: WordProps) {
     super(props);
     this.state = {
       selectedWordViewOption: WordViewOption.None,
@@ -83,8 +89,19 @@ export class Word extends React.Component<WordModel, WordState> {
       <>
         <IonCard>
           <IonCardHeader>
-            <IonCardSubtitle>{this.props.meaning}</IonCardSubtitle>
-            <IonCardTitle>{this.capitalize(this.props.name)}</IonCardTitle>
+            <IonCardSubtitle>
+              {this.props.meaning}
+            </IonCardSubtitle>
+            <IonCardTitle>
+              {this.capitalize(this.props.name)}
+              <IonIcon 
+                icon={pencil} 
+                color={"primary"}
+                onClick={() => {
+                  this.props.history.push(`addeditword/${this.props.id}`)
+                }} 
+              />
+            </IonCardTitle>
             <IonNote color="primary">{this.state.information}</IonNote>
             <IonCardTitle>
               <IonChip

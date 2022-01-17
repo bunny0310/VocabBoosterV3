@@ -1,0 +1,14 @@
+.center 
+{
+  flex: 1;
+}
+.block {
+  display: flex;
+  min-height: 24em;
+  justify-content: center;
+  align-items: center;
+}
+.IonCard {
+  --background: red;
+  box-shadow: none !important;
+}

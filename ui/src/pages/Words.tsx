@@ -14,11 +14,13 @@ import {
 } from "@ionic/react";
 import { inject } from "inversify";
 import React from "react";
+import { RouteComponentProps } from "react-router";
 import { IWordsApiClient } from "../api_clients/IWordsApiClient";
 import { WordModel } from "../api_clients/WordsApiClient";
 import { _wordsApi } from "../App";
 import { SearchModal } from "../components/SearchModal";
 import { Word } from "../components/Word";
+import { WordSkeletonLoading } from "../components/WordSkeletonLoading";
 import container from "../SettingsManager";
 
 export interface WordsState {
@@ -27,7 +29,7 @@ export interface WordsState {
   loading: boolean;
   infiniteDisabled: boolean;
 }
-export class Words extends React.Component<any, WordsState> {
+export class Words extends React.Component<RouteComponentProps, WordsState> {
   constructor(props: any) {
     super(props);
     this.state = {
@@ -38,7 +40,10 @@ export class Words extends React.Component<any, WordsState> {
     };
   }
 
-  private searchModalHandler = (): void => {
+  private searchModalHandler = (e: CustomEvent<void>, id?: string): void => {
+    if (id) {
+      this.props.history.push(`/addeditword/${id}`);
+    }
     this.setState({
       ...this.state,
       showSearchModal: !this.state.showSearchModal,
@@ -109,16 +114,18 @@ export class Words extends React.Component<any, WordsState> {
           modalHandler={this.searchModalHandler}
         ></SearchModal>
         {!this.state.loading && (
-          <>
+          <> 
             {words.map((word) => {
               return (
                 <Word
+                  id={word.id}
                   name={word.name}
                   meaning={word.meaning}
                   sentences={word.sentences}
                   synonyms={word.synonyms}
                   tags={word.tags}
                   types={word.types}
+                  {...this.props}
                 ></Word>
               );
             })}
@@ -138,19 +145,7 @@ export class Words extends React.Component<any, WordsState> {
           <>
             {[1, 1, 1, 1, 1].map((x, i) => {
               return (
-                <IonCard>
-                  <IonCardHeader>
-                    <IonSkeletonText animated />
-                  </IonCardHeader>
-                  <IonCardSubtitle>
-                    <IonSkeletonText animated />
-                  </IonCardSubtitle>
-                  <IonCardContent>
-                    <IonSkeletonText animated />
-                    <IonSkeletonText animated />
-                    <IonSkeletonText animated />
-                  </IonCardContent>
-                </IonCard>
+                <WordSkeletonLoading />
               );
             })}
           </>

@@ -2,7 +2,8 @@ import { InputChangeEventDetail, IonButton, IonCard, IonCardContent, IonCardHead
 import React from "react";
 import { useHistory } from "react-router";
 import { WordModel } from "../api_clients/WordsApiClient";
-import { _wordsApi } from "../App";
+import { _messageBus, _wordsApi } from "../App";
+import { Messages } from "../services/MessageBus";
 import { FormChipInput } from "./FormChipInput";
 import { FormInput } from "./FormInput";
 
@@ -17,12 +18,20 @@ enum AddWordStatus {
     FAIL
 }
 
+enum AddEditWord {
+    Add,
+    Edit
+}
+
 export const AddWordForm = (props: AddWordFormProps) => {
     const history = useHistory();
     const [values, setValues] = React.useState<WordModel>(props.data);
     const [status, setStatus] = React.useState<AddWordStatus>(AddWordStatus.NONE);
+    const [action, setAction] = React.useState<AddEditWord>(AddEditWord.Add);
     React.useEffect(() => {
         setValues(props.data);
+        setAction(props.data.id ? AddEditWord.Edit : AddEditWord.Add);
+        _messageBus.dispatch<string>(Messages.CloseSearchModal, "");
     }, [props.data])
 
     const isFormValid: any = {
@@ -36,7 +45,7 @@ export const AddWordForm = (props: AddWordFormProps) => {
     let disabled = Object.values(isFormValid).includes(false);
 
     const submitWord = async (): Promise<void> => {
-        const outcome: string | undefined = await _wordsApi.addWord(values);
+        const outcome: string | undefined = action === AddEditWord.Edit ? await _wordsApi.editWord(values) : await _wordsApi.addWord(values);
         outcome == null ? setStatus(AddWordStatus.FAIL) : setStatus(AddWordStatus.SUCCESS);
     }
 
@@ -46,7 +55,7 @@ export const AddWordForm = (props: AddWordFormProps) => {
                 <IonCard>
                     <IonCardHeader>
                         <IonCardTitle>
-                            {props.data.id ? 'Edit' : 'Add'} Word
+                            {action === AddEditWord.Edit ? 'Edit' : 'Add'} Word
                         </IonCardTitle>
                     </IonCardHeader>
                     <IonCardContent>
@@ -117,12 +126,12 @@ export const AddWordForm = (props: AddWordFormProps) => {
                 isOpen={status === AddWordStatus.FAIL || status === AddWordStatus.SUCCESS}
                 color={status === AddWordStatus.SUCCESS ? 'success' : (status === AddWordStatus.FAIL ? 'danger': 'dark')}
                 onDidDismiss={() => {
-                        status === AddWordStatus.SUCCESS && history.push('/tab1');
+                        status === AddWordStatus.SUCCESS && action === AddEditWord.Add && history.push('/tab1');
                         setStatus(AddWordStatus.NONE);
                     }
                 }
-                message={status === AddWordStatus.SUCCESS ? 'Your word has been saved successfully!' : 'Sorry cannot save your word. Internal server error.'}
-                duration={200}
+                message={status === AddWordStatus.SUCCESS ? `Your word has been ${action === AddEditWord.Edit ? 'updated' : 'saved'} successfully!` : 'Sorry cannot save your word. Internal server error.'}
+                duration={600}
                 />
             </IonContent>
         </>

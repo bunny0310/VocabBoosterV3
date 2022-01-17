@@ -6,7 +6,7 @@ EXPOSE 5000
 
 # stage 2
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
-WORKDIR /app
+WORKDIR ../app
 COPY *.csproj ./
 RUN dotnet restore
 

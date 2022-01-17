@@ -1,4 +1,4 @@
-import { Redirect, Route } from 'react-router-dom';
+import { Redirect, Route, useLocation } from 'react-router-dom';
 import {
   IonApp,
   IonContent,
@@ -35,12 +35,16 @@ import { WordModel } from './api_clients/WordsApiClient';
 import { Words } from './pages/Words';
 import { AddEditWord } from './pages/AddEditWord';
 import React from 'react';
+import { AddEditWordFormHoc } from './components/AddEditWordFormHoc';
+import { Page404 } from './pages/ErrorPages/Page404';
+import { IMessageBus } from './services/IMessageBus';
 
 setupIonicReact();
 
 export const _wordsApi = container.get<IWordsApiClient>("IWordsApiClient");
+export const _messageBus = container.get<IMessageBus>("IMessageBus");
 
-const App: React.FC = () => {  
+const App: React.FC = () => {
 
   return (
     <IonApp>
@@ -55,16 +59,26 @@ const App: React.FC = () => {
         <IonReactRouter>
             <IonTabs>
               <IonRouterOutlet>
-                <Route exact path="/tab1">
-                  <Words></Words>
+                <Route exact path="/tab1" component={Words}>
                 </Route>
-                <Route exact path="/tab2">
+                <Route exact path="/addeditword">
                   <AddEditWord />
                 </Route>
                 <Route path="/tab3">
                 </Route>
+                <Route
+                  path="/addeditword/:id"
+                  component = {AddEditWordFormHoc}
+                >
+                </Route>
                 <Route exact path="/">
                   <Redirect to="/tab1" />
+                </Route>
+                <Route>
+                  <Page404 
+                    title={"Oops... Broken Link"}
+                    message={"The link you are trying to navigate to is broken. Sorry about that."}
+                  />
                 </Route>
               </IonRouterOutlet>
               <IonTabBar slot="bottom">
@@ -72,7 +86,7 @@ const App: React.FC = () => {
                   <IonIcon icon={bookOutline} />
                   <IonLabel>Words</IonLabel>
                 </IonTabButton>
-                <IonTabButton tab="tab2" href="/tab2">
+                <IonTabButton tab="tab2" href="/addeditword">
                   <IonIcon icon={addCircleOutline} />
                   <IonLabel>Add Word</IonLabel>
                 </IonTabButton>
