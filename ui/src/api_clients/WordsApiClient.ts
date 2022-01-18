@@ -1,8 +1,14 @@
 import { injectable } from "inversify";
 import "reflect-metadata"; 
 import { IWordsApiClient } from './IWordsApiClient'
+import { Storage } from '@capacitor/storage';
 import axios from "axios";
 import { SearchWordsApiRequest } from "../components/SearchModal";
+import { jwtKeyName } from "./AuthApiClient";
+import { Word } from "../components/Word";
+import { _messageBus } from "../App";
+import { Messages } from "../services/MessageBus";
+import { BaseApiClient } from "./BaseApiClient";
 
 const baseUrl = `${process.env.NODE_ENV === 'production' ? 'https://vocabbooster-words.herokuapp.com/Words' : 'https://localhost:7296/Words'}`;
 
@@ -47,49 +53,34 @@ export interface SearchWordResponse {
 
 export interface ApiOutcome<T> {
     data?: T,
-    error?: any,
-    code?: number
+    message?: any,
+    code?: number,
+    isSuccessful: boolean
 }
 
 @injectable()
-export class WordsApiClient implements IWordsApiClient {
-    getWords = async (limit: number, offset: number) => {
-        const queryModel: SearchWordsQueryModel = {
-            ...defaultSearchWordsQueryModel,
-            limit,
-            offset
-        }
-        const response = await axios
-        .get<WordModel[]>(this.generateWordsQuery(queryModel));
-        
-        const words = await response.data;
-        return words;
+export class WordsApiClient extends BaseApiClient implements IWordsApiClient{
+    getWords = async (limit: number, offset: number): Promise<ApiOutcome<WordModel[] | undefined>> => {
+            const queryModel: SearchWordsQueryModel = {
+                ...defaultSearchWordsQueryModel,
+                limit,
+                offset
+            }            
+            const outcome = await this.getApi<WordModel[] | undefined>(this.generateWordsQuery(queryModel));
+            return outcome;
     }
 
-    getWord = async (id: string): Promise<ApiOutcome<WordModel>> => {
+    getWord = async (id: string): Promise<ApiOutcome<WordModel | undefined>> => {
         if (!id || id.trim() === '') {
             return {
                 data: undefined,
-                error: "Bad Request",
-                code: 400
+                message: "Bad Request",
+                code: 400,
+                isSuccessful: false
             };
         }
-        try {
-            const response = await axios
-            .get<WordModel>(`${baseUrl}/${id}`);
-            const word = await response.data;
-            const code = await response.status;
-            return {
-                data: word,
-                code
-            };
-        }
-        catch (error: any) {
-            return {
-                code: await error.response.status,
-                error: "Internal Server Error"
-            }
-        }
+        const outcome = await this.getApi<WordModel | undefined>(`${baseUrl}/${id}`);
+        return outcome;
     }
 
     private generateWordsQuery = (searchWordsQueryModel: SearchWordsQueryModel) => {
@@ -98,38 +89,29 @@ export class WordsApiClient implements IWordsApiClient {
     }
     
     searchWordsNameOnly = async (postRequest: SearchWordsApiRequest) => {
-        const response = await axios
-        .post<SearchWordResponse[]>(`${baseUrl}/SearchWordsNameOnly`, postRequest);
-
-        const words = await response.data;
-        return words;
+        const outcome = await this.postApi<SearchWordsApiRequest, SearchWordResponse[] | undefined>(`${baseUrl}/SearchWordsNameOnly`, postRequest);
+        return outcome;
     }
 
-    addWord = async (body: WordModel): Promise<string|undefined> => {
-        try {
-            const response = await axios
-            .post<WordModel>(`${baseUrl}`, body);
-    
-            const data = await response.data;
-            return data.id!;
-        }
-        catch(error: any) {
-            console.log(error);
-            return undefined;
-        }
-    };
+    addWord = async (body: WordModel): Promise<ApiOutcome<string|undefined>> => {
+        const outcome = await this.postApi<WordModel, WordModel>(`${baseUrl}`, body);
+        const result =  {
+            code: outcome.code,
+            isSuccessful: outcome.isSuccessful,
+            message: outcome.message,
+            data: outcome.data ? outcome.data.id : undefined
+        };
+        return result;
+    }
 
-    editWord = async (body: WordModel): Promise<string|undefined> => {
-        try {
-            const response = await axios
-            .put<WordModel>(`${baseUrl}`, body);
-    
-            const data = await response.data;
-            return data.id!;
-        }
-        catch(error: any) {
-            console.log(error);
-            return undefined;
-        }
+    editWord = async (body: WordModel): Promise<ApiOutcome<string|undefined>> => {
+        const outcome = await this.putApi<WordModel, WordModel>(`${baseUrl}`, body);
+        const result =  {
+            code: outcome.code,
+            isSuccessful: outcome.isSuccessful,
+            message: outcome.message,
+            data: outcome.data ? outcome.data.id : undefined
+        };
+        return result;
     };
 }

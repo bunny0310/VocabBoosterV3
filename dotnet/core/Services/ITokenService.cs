@@ -7,6 +7,6 @@ namespace core.Services
     public interface ITokenService
     {
         ExecutionOutcome<string> BuildToken(string key, string issuer, AuthenticationRequest user);
-        bool IsTokenValid(string key, string issuer, string token);
+        ExecutionOutcome<bool> IsTokenValid(string key, string issuer, string token);
     }
 }

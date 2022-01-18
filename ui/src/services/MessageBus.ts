@@ -18,5 +18,7 @@ export class MessageBus implements IMessageBus{
 }
 
 export enum Messages {
-    CloseSearchModal = "CloseSearchModal"
+    CloseSearchModal = "CloseSearchModal",
+    Login = "Login",
+    Logout = "Logout"
 }

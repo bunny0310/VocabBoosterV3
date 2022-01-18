@@ -101,7 +101,7 @@ export const SearchModal = (props: SearchModalProps) => {
     };
     const getSearchResults = async () => {
       const postRequest = constructPostRequest();
-      setSearchedWords(await _wordsApi.searchWordsNameOnly(postRequest));
+      setSearchedWords(await (await _wordsApi.searchWordsNameOnly(postRequest)).data ?? []);
       setLoading(false);
     };
     if (searchbarRef.current) {
@@ -149,7 +149,7 @@ export const SearchModal = (props: SearchModalProps) => {
         ...constructBasePostRequest(),
         searchValue: val,
       };
-      setSearchedWords(await _wordsApi.searchWordsNameOnly(postRequest));
+      setSearchedWords(await (await _wordsApi.searchWordsNameOnly(postRequest)).data ?? []);
       setLoading(false);
       console.log(searchedWords)
     }

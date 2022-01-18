@@ -1,10 +1,15 @@
 import { Redirect, Route, useLocation } from 'react-router-dom';
 import {
   IonApp,
+  IonButton,
+  IonButtons,
   IonContent,
   IonHeader,
   IonIcon,
+  IonItem,
   IonLabel,
+  IonList,
+  IonModal,
   IonRouterOutlet,
   IonTabBar,
   IonTabButton,
@@ -14,7 +19,7 @@ import {
   setupIonicReact
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { addCircle, addCircleOutline, analyticsOutline, book, bookOutline, ellipse, square, triangle } from 'ionicons/icons';
+import { addCircle, addCircleOutline, analyticsOutline, book, bookOutline, ellipse, logOutOutline, menuOutline, square, triangle } from 'ionicons/icons';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -38,67 +43,130 @@ import React from 'react';
 import { AddEditWordFormHoc } from './components/AddEditWordFormHoc';
 import { Page404 } from './pages/ErrorPages/Page404';
 import { IMessageBus } from './services/IMessageBus';
+import { IAuthApiClient } from './api_clients/IAuthApiClient';
+import { Messages } from './services/MessageBus';
+import { LoginForm } from './components/LoginForm';
+import { Login } from './pages/Login';
+import { AuthContext } from './pages/Contexts/AuthContext';
+import { Storage } from '@capacitor/storage';
+import { jwtKeyName } from './api_clients/AuthApiClient';
 
 setupIonicReact();
 
 export const _wordsApi = container.get<IWordsApiClient>("IWordsApiClient");
+export const _authApi = container.get<IAuthApiClient>("IAuthApiClient");
 export const _messageBus = container.get<IMessageBus>("IMessageBus");
 
 const App: React.FC = () => {
+  const [auth, setAuth] = React.useState<boolean>(_authApi.authorize());
+  const [showModal, setShowModal] = React.useState<boolean>(false);
+
+  const logout = async () => {
+    Storage.remove({"key": jwtKeyName});
+    setAuth(false);
+  }
+
+  React.useEffect(() => {
+    _authApi.authorize();
+    _messageBus.on(Messages.Login, () => setAuth(true));
+    _messageBus.on(Messages.Logout, async () => logout());
+  }, [])
 
   return (
-    <IonApp>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>
-            <img src={"assets/logo.png"} className={"logo"}></img>
-          </IonTitle>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent>
-        <IonReactRouter>
-            <IonTabs>
-              <IonRouterOutlet>
-                <Route exact path="/tab1" component={Words}>
-                </Route>
-                <Route exact path="/addeditword">
-                  <AddEditWord />
-                </Route>
-                <Route path="/tab3">
-                </Route>
-                <Route
-                  path="/addeditword/:id"
-                  component = {AddEditWordFormHoc}
-                >
-                </Route>
-                <Route exact path="/">
-                  <Redirect to="/tab1" />
-                </Route>
-                <Route>
-                  <Page404 
-                    title={"Oops... Broken Link"}
-                    message={"The link you are trying to navigate to is broken. Sorry about that."}
-                  />
-                </Route>
-              </IonRouterOutlet>
-              <IonTabBar slot="bottom">
-                <IonTabButton tab="tab1" href="/tab1">
-                  <IonIcon icon={bookOutline} />
-                  <IonLabel>Words</IonLabel>
-                </IonTabButton>
-                <IonTabButton tab="tab2" href="/addeditword">
-                  <IonIcon icon={addCircleOutline} />
-                  <IonLabel>Add Word</IonLabel>
-                </IonTabButton>
-                <IonTabButton tab="tab3" href="/tab3">
-                  <IonIcon icon={analyticsOutline} />
-                  <IonLabel>Analytics</IonLabel>
-                </IonTabButton>
-              </IonTabBar>
-            </IonTabs>
-          </IonReactRouter>
-      </IonContent>
-    </IonApp>);
+    <AuthContext.Provider value={auth}>
+      <IonApp>
+        <IonHeader>
+          <IonToolbar>
+            <IonTitle>
+              <img src={"assets/logo.png"} className={"logo"} alt="logo"></img>
+            </IonTitle>
+            {auth && <IonButtons slot={"end"}>
+                  <IonButton size={"large"} onClick={() => setShowModal(!showModal)}>
+                    <IonIcon icon={menuOutline}>
+                    </IonIcon>
+                  </IonButton>
+            </IonButtons>}
+          </IonToolbar>
+        </IonHeader>
+        <IonContent>
+          <IonReactRouter>
+              <IonTabs>
+                <IonRouterOutlet>
+                    {
+                      auth 
+                      ? <Route exact path="/tab1" component={Words} />
+                      : <Route exact path="/tab1">
+                          <Redirect to="/login"></Redirect>
+                      </Route>
+                    }
+                    {
+                      auth 
+                      ? <Route exact path="/addeditword" component={AddEditWord} />
+                      : <Route exact path="/addeditword">
+                          <Redirect to="/login"></Redirect>
+                      </Route>
+                    }
+                    <Route path="/tab3" />
+                    <Route
+                      path="/addeditword/:id"
+                      component = {AddEditWordFormHoc}
+                    />
+                    <Route exact path="/">
+                      <Redirect to={auth ? "/tab1" : "/login"} />
+                    </Route>
+                    {/* {!auth
+                      ? <Route path="/login" component={Login} />
+                      : <Route path="/login"><Redirect to="/tab1" /></Route>
+                    } */}
+                    <Route path="/login" component={Login} />
+                  <Route>
+                    <Page404 
+                      title={"Oops... Broken Link"}
+                      message={"The link you are trying to navigate to is broken. Sorry about that."}
+                    />
+                  </Route>
+                </IonRouterOutlet>
+                <IonTabBar slot="bottom" style={{"display": auth ? "flex" : "none"}}>
+                  <IonTabButton tab="tab1" href="/tab1">
+                    <IonIcon icon={bookOutline} />
+                    <IonLabel>Words</IonLabel>
+                  </IonTabButton>
+                  <IonTabButton tab="tab2" href="/addeditword">
+                    <IonIcon icon={addCircleOutline} />
+                    <IonLabel>Add Word</IonLabel>
+                  </IonTabButton>
+                  <IonTabButton tab="tab3" href="/tab3">
+                    <IonIcon icon={analyticsOutline} />
+                    <IonLabel>Analytics</IonLabel>
+                  </IonTabButton>
+                </IonTabBar>
+              </IonTabs>
+            </IonReactRouter>
+          <IonModal
+          isOpen={showModal}
+          breakpoints={[0, 0.15, 0.15, 0.15]}
+          initialBreakpoint={0.1}
+          onDidDismiss={() => setShowModal(false)}
+          >
+          <IonContent>
+            <IonList>
+              <IonItem style = {{"cursor": "pointer"}} onClick={() => {
+                  setShowModal(false);
+                  _messageBus.dispatch<string>(Messages.Logout, "logout");
+                }
+              }>
+                <IonLabel>
+                  <IonIcon icon={logOutOutline}/>
+                  Logout
+                </IonLabel>
+              </IonItem>
+            </IonList>
+          </IonContent>
+          </IonModal>
+        </IonContent>
+      </IonApp>
+    </AuthContext.Provider>  
+    );
   }
 
 export default App;

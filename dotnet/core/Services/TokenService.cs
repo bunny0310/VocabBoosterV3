@@ -29,7 +29,7 @@ namespace core.Services
             }
         }
 
-        public bool IsTokenValid(string key, string issuer, string token)
+        public ExecutionOutcome<bool> IsTokenValid(string key, string issuer, string token)
         {
             var mySecret = Encoding.UTF8.GetBytes(key);           
             var mySecurityKey = new SymmetricSecurityKey(mySecret);
@@ -47,11 +47,11 @@ namespace core.Services
                     IssuerSigningKey = mySecurityKey,
                 }, out SecurityToken validatedToken);            
             }
-            catch
+            catch (Exception e)
             {
-                return false;
+                return new ExecutionOutcome<bool>() {IsSuccessful = true, Data = false};
             }
-            return true;    
+            return new ExecutionOutcome<bool>() {IsSuccessful = true, Data = true};    
         }
     }
 }

@@ -6,7 +6,7 @@ using core;
 
 var builder = WebApplication.CreateBuilder(args);
 var root = Directory.GetParent(Directory.GetParent(Directory.GetCurrentDirectory())?.ToString())?.ToString();
-var dotenv = Path.Combine(root, ".env");
+var dotenv = Path.Combine(root ?? "", ".env");
 DotEnv.Load(dotenv);
 
 // Add services to the container.
@@ -26,6 +26,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     };    
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("corsOrigins",
+                          builder =>
+                          {
+                              builder
+                                .AllowAnyOrigin()
+                                .AllowAnyHeader()
+                                .AllowAnyMethod();
+                          });
+});
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -43,6 +55,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseCors("corsOrigins");
 
 app.MapControllers();
 

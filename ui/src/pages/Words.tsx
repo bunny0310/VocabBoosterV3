@@ -10,6 +10,7 @@ import {
   IonRefresherContent,
   IonSearchbar,
   IonSkeletonText,
+  IonToast,
   RefresherEventDetail,
 } from "@ionic/react";
 import { inject } from "inversify";
@@ -17,7 +18,8 @@ import React from "react";
 import { RouteComponentProps } from "react-router";
 import { IWordsApiClient } from "../api_clients/IWordsApiClient";
 import { WordModel } from "../api_clients/WordsApiClient";
-import { _wordsApi } from "../App";
+import { _authApi, _wordsApi } from "../App";
+import { ApiCallStatus } from "../components/AddWordForm";
 import { SearchModal } from "../components/SearchModal";
 import { Word } from "../components/Word";
 import { WordSkeletonLoading } from "../components/WordSkeletonLoading";
@@ -26,7 +28,7 @@ import container from "../SettingsManager";
 export interface WordsState {
   words: WordModel[];
   showSearchModal: boolean;
-  loading: boolean;
+  status: ApiCallStatus;
   infiniteDisabled: boolean;
 }
 export class Words extends React.Component<RouteComponentProps, WordsState> {
@@ -35,7 +37,7 @@ export class Words extends React.Component<RouteComponentProps, WordsState> {
     this.state = {
       words: [],
       showSearchModal: false,
-      loading: false,
+      status: ApiCallStatus.NONE,
       infiniteDisabled: false
     };
   }
@@ -51,23 +53,38 @@ export class Words extends React.Component<RouteComponentProps, WordsState> {
   };
 
   componentDidMount = () => {
+    // _authApi.authorize();
     this.setState({
       ...this.state,
-      loading: true,
+      status: ApiCallStatus.PROCESSING,
     });
     this.getWords(5, 0);
   };
-
+  
+  apiCall = async (limit: number, offset: number) => {
+    const outcome = await _wordsApi.getWords(limit, offset);
+    if (!outcome.isSuccessful) {
+        this.setState({
+        ...this.state,
+        status: ApiCallStatus.FAIL
+      });
+      return [];
+    }
+    return outcome.data;
+  }
   getWords = async (limit: number, offset: number) => {
     const newWords = this.state.words;
-    const queryWords = await _wordsApi.getWords(limit, offset)
-    queryWords.length > 0 && newWords.push(...queryWords);
+    const queryWords = await this.apiCall(limit, offset);
+    if (queryWords == null || queryWords?.length === 0) {
+      return 0;
+    }
+    queryWords && queryWords.length > 0 && newWords.push(...queryWords);
     this.setState({
       ...this.state,
       words: newWords,
-      loading: false,
+      status: ApiCallStatus.SUCCESS,
     });
-    return queryWords.length;
+    return queryWords?.length;
   };
 
   loadData = async (ev: any) => {
@@ -84,13 +101,16 @@ export class Words extends React.Component<RouteComponentProps, WordsState> {
   doRefresh = async (event: CustomEvent<RefresherEventDetail>) => {
     this.setState({
       ...this.state,
-      loading: true
+      status: ApiCallStatus.PROCESSING
     });
     const refreshWords = async () => {
-      const refreshedWords = await _wordsApi.getWords(5, 0);
+      const refreshedWords = await this.apiCall(5, 0);
+      if (refreshedWords == null || refreshedWords.length === 0) {
+        return [];
+      }
       this.setState({
         ...this.state,
-        loading: false,
+        status: ApiCallStatus.SUCCESS,
         words: refreshedWords
       })
     }
@@ -113,7 +133,7 @@ export class Words extends React.Component<RouteComponentProps, WordsState> {
           showModal={this.state.showSearchModal}
           modalHandler={this.searchModalHandler}
         ></SearchModal>
-        {!this.state.loading && (
+        {this.state.status === ApiCallStatus.SUCCESS && (
           <> 
             {words.map((word) => {
               return (
@@ -141,13 +161,14 @@ export class Words extends React.Component<RouteComponentProps, WordsState> {
         </IonInfiniteScroll>
           </>
         )}
-        {this.state.loading && (
+        {(this.state.status === ApiCallStatus.PROCESSING || this.state.status === ApiCallStatus.FAIL) && (
           <>
             {[1, 1, 1, 1, 1].map((x, i) => {
               return (
                 <WordSkeletonLoading />
               );
             })}
+            <IonToast isOpen={this.state.status === ApiCallStatus.FAIL} color={"danger"} duration={500} message={"Unable to load words"} onDidDismiss={() => {}} />
           </>
         )}
       </IonContent>

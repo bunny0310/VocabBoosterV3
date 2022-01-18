@@ -11,9 +11,9 @@ export interface AddWordFormProps {
     data: WordModel
 }
 
-enum AddWordStatus {
+export enum ApiCallStatus {
     NONE,
-    ADDING,
+    PROCESSING,
     SUCCESS,
     FAIL
 }
@@ -26,7 +26,7 @@ enum AddEditWord {
 export const AddWordForm = (props: AddWordFormProps) => {
     const history = useHistory();
     const [values, setValues] = React.useState<WordModel>(props.data);
-    const [status, setStatus] = React.useState<AddWordStatus>(AddWordStatus.NONE);
+    const [status, setStatus] = React.useState<ApiCallStatus>(ApiCallStatus.NONE);
     const [action, setAction] = React.useState<AddEditWord>(AddEditWord.Add);
     React.useEffect(() => {
         setValues(props.data);
@@ -45,8 +45,8 @@ export const AddWordForm = (props: AddWordFormProps) => {
     let disabled = Object.values(isFormValid).includes(false);
 
     const submitWord = async (): Promise<void> => {
-        const outcome: string | undefined = action === AddEditWord.Edit ? await _wordsApi.editWord(values) : await _wordsApi.addWord(values);
-        outcome == null ? setStatus(AddWordStatus.FAIL) : setStatus(AddWordStatus.SUCCESS);
+        const outcome: string | undefined = action === AddEditWord.Edit ? await (await _wordsApi.editWord(values)).data : await (await _wordsApi.addWord(values)).data;
+        outcome == null ? setStatus(ApiCallStatus.FAIL) : setStatus(ApiCallStatus.SUCCESS);
     }
 
     return (
@@ -54,7 +54,7 @@ export const AddWordForm = (props: AddWordFormProps) => {
             <IonContent>
                 <IonCard>
                     <IonCardHeader>
-                        <IonCardTitle>
+                        <IonCardTitle style={{"textAlign": "center"}}>
                             {action === AddEditWord.Edit ? 'Edit' : 'Add'} Word
                         </IonCardTitle>
                     </IonCardHeader>
@@ -108,29 +108,29 @@ export const AddWordForm = (props: AddWordFormProps) => {
                             values={values.types}
                         />
                             <IonButton 
-                                disabled={disabled || status === AddWordStatus.ADDING} 
+                                disabled={disabled || status === ApiCallStatus.PROCESSING} 
                                 onClick={() => {
-                                    setStatus(AddWordStatus.ADDING);
+                                    setStatus(ApiCallStatus.PROCESSING);
                                     submitWord();
                                 }} 
                                 fill={"solid"} 
                                 size={"large"} 
                                 expand={"block"}>
                                     {props.data.id ? 'Update ': 'Add '}
-                                    {status === AddWordStatus.ADDING && <IonSpinner name={"dots"} />}
+                                    {status === ApiCallStatus.PROCESSING && <IonSpinner name={"dots"} />}
                             </IonButton>
                     </IonCardContent>
                 </IonCard>
                 
                 <IonToast
-                isOpen={status === AddWordStatus.FAIL || status === AddWordStatus.SUCCESS}
-                color={status === AddWordStatus.SUCCESS ? 'success' : (status === AddWordStatus.FAIL ? 'danger': 'dark')}
+                isOpen={status === ApiCallStatus.FAIL || status === ApiCallStatus.SUCCESS}
+                color={status === ApiCallStatus.SUCCESS ? 'success' : (status === ApiCallStatus.FAIL ? 'danger': 'dark')}
                 onDidDismiss={() => {
-                        status === AddWordStatus.SUCCESS && action === AddEditWord.Add && history.push('/tab1');
-                        setStatus(AddWordStatus.NONE);
+                        status === ApiCallStatus.SUCCESS && action === AddEditWord.Add && history.push('/tab1');
+                        setStatus(ApiCallStatus.NONE);
                     }
                 }
-                message={status === AddWordStatus.SUCCESS ? `Your word has been ${action === AddEditWord.Edit ? 'updated' : 'saved'} successfully!` : 'Sorry cannot save your word. Internal server error.'}
+                message={status === ApiCallStatus.SUCCESS ? `Your word has been ${action === AddEditWord.Edit ? 'updated' : 'saved'} successfully!` : 'Sorry cannot save your word. Internal server error.'}
                 duration={600}
                 />
             </IonContent>

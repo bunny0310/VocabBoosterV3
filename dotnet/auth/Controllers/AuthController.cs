@@ -26,5 +26,11 @@ namespace auth.Controllers
             }
             return OkOrError(outcome);
         }
+
+        [HttpPost("validate")]
+        public async Task<IActionResult> ValidateToken(TokenValidationRequest request) {
+            var outcome = _serviceFactory.TokenService().IsTokenValid(ConfigurationVariables.JwtKey ?? "", ConfigurationVariables.JwtIssuer ?? "", request.Token);
+            return OkOrError(outcome);
+        }
     }
 }
