@@ -81,10 +81,11 @@ const App: React.FC = () => {
               <img src={"assets/logo.png"} className={"logo"} alt="logo"></img>
             </IonTitle>
             {auth && <IonButtons slot={"end"}>
-                  <IonButton size={"large"} onClick={() => setShowModal(!showModal)}>
-                    <IonIcon icon={menuOutline}>
-                    </IonIcon>
-                  </IonButton>
+                  <IonItem lines={"none"}>
+                    <IonButton size={"large"} onClick={() => setShowModal(!showModal)}>
+                      <IonIcon icon={menuOutline} />
+                    </IonButton>
+                  </IonItem>
             </IonButtons>}
           </IonToolbar>
         </IonHeader>
@@ -101,16 +102,19 @@ const App: React.FC = () => {
                     }
                     {
                       auth 
-                      ? <Route exact path="/addeditword" component={AddEditWord} />
-                      : <Route exact path="/addeditword">
+                      ? <Route exact path="/addword" component={AddEditWord} />
+                      : <Route exact path="/addword">
                           <Redirect to="/login"></Redirect>
                       </Route>
                     }
                     <Route path="/tab3" />
-                    <Route
-                      path="/addeditword/:id"
-                      component = {AddEditWordFormHoc}
-                    />
+                    {
+                      auth 
+                      ? <Route exact path="/editword/:id" component={AddEditWordFormHoc} />
+                      : <Route exact path="/editword/:id">
+                          <Redirect to="/login"></Redirect>
+                      </Route>
+                    }
                     <Route exact path="/">
                       <Redirect to={auth ? "/tab1" : "/login"} />
                     </Route>
@@ -131,7 +135,7 @@ const App: React.FC = () => {
                     <IonIcon icon={bookOutline} />
                     <IonLabel>Words</IonLabel>
                   </IonTabButton>
-                  <IonTabButton tab="tab2" href="/addeditword">
+                  <IonTabButton tab="tab2" href="/addword">
                     <IonIcon icon={addCircleOutline} />
                     <IonLabel>Add Word</IonLabel>
                   </IonTabButton>

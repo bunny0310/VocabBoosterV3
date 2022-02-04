@@ -1,6 +1,7 @@
 import React, { MouseEventHandler, ReactDOM } from "react";
 import { WordModel } from "../api_clients/WordsApiClient";
 import {
+  IonButton,
   IonButtons,
   IonCard,
   IonCardContent,
@@ -8,14 +9,32 @@ import {
   IonCardSubtitle,
   IonCardTitle,
   IonChip,
+  IonContent,
   IonIcon,
   IonItem,
   IonLabel,
   IonList,
   IonNote,
+  IonPopover,
+  IonToolbar,
 } from "@ionic/react";
-import { closeCircleOutline, layers, pencil, pricetag, repeat } from "ionicons/icons";
-import { RouteComponentProps, RouteProps, RouterProps, withRouter } from "react-router-dom";
+import {
+  closeCircleOutline,
+  ellipsisVertical,
+  layers,
+  pencil,
+  pencilOutline,
+  pricetag,
+  repeat,
+  trashBin,
+  trashOutline,
+} from "ionicons/icons";
+import {
+  RouteComponentProps,
+  RouteProps,
+  RouterProps,
+  withRouter,
+} from "react-router-dom";
 
 enum WordViewOption {
   None,
@@ -27,11 +46,13 @@ enum WordViewOption {
 interface WordState {
   selectedWordViewOption: WordViewOption;
   information: string;
+  popoveroptions: {
+    show: boolean,
+    event: any
+  };
 }
 
-interface WordProps extends WordModel, RouteComponentProps {
-
-}
+interface WordProps extends WordModel, RouteComponentProps {}
 
 export class Word extends React.Component<WordProps, WordState> {
   constructor(props: WordProps) {
@@ -39,6 +60,10 @@ export class Word extends React.Component<WordProps, WordState> {
     this.state = {
       selectedWordViewOption: WordViewOption.None,
       information: "",
+      popoveroptions: {
+        show: false,
+        event: undefined
+      },
     };
   }
 
@@ -89,19 +114,56 @@ export class Word extends React.Component<WordProps, WordState> {
       <>
         <IonCard>
           <IonCardHeader>
-            <IonCardSubtitle>
-              {this.props.meaning}
-            </IonCardSubtitle>
+            <IonCardSubtitle>{this.props.meaning}</IonCardSubtitle>
             <IonCardTitle>
               {this.capitalize(this.props.name)}
-              <IonIcon 
-                icon={pencil} 
+              <IonIcon
+                style={{"float": "right"}}
+                icon={ellipsisVertical}
                 color={"primary"}
-                onClick={() => {
-                  this.props.history.push(`addeditword/${this.props.id}`)
-                }} 
+                onClick={(e: any) => {
+                  e.persist();
+                  this.setState({
+                    ...this.state,
+                    popoveroptions: {
+                      show: !this.state.popoveroptions.show,
+                      event: this.state.popoveroptions.event ? undefined : e
+                    }
+                  })
+                }}
               />
             </IonCardTitle>
+            <IonPopover
+                isOpen={this.state.popoveroptions.show}
+                side={"bottom"}
+                event={this.state.popoveroptions.event}
+                onDidDismiss={() => {
+                  this.setState({...this.state, popoveroptions: {show: false, event: undefined}})
+                }
+              }
+            >
+                <IonList lines={"none"}>
+                  <IonItem onClick={() => {
+
+                    this.setState({
+                      ...this.state,
+                      popoveroptions: {
+                        ...this.state.popoveroptions,
+                        show: false,
+                      }
+                    }, () => this.props.history.push(`/editword/${this.props.id}`))
+                    
+                  }
+                }>
+                    <IonIcon color={"primary"} icon={pencilOutline} />
+                    Edit
+                  </IonItem>
+                  <IonItem>
+                    <IonIcon color={"danger"} icon={trashOutline} />
+                    Delete
+                  </IonItem>
+                </IonList>
+            </IonPopover>
             <IonNote color="primary">{this.state.information}</IonNote>
             <IonCardTitle>
               <IonChip

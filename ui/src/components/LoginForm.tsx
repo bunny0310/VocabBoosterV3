@@ -8,6 +8,7 @@ import { MessageBus, Messages } from "../services/MessageBus";
 import { ApiCallStatus } from "./AddWordForm";
 import { FormChipInput } from "./FormChipInput";
 import { FormInput } from "./FormInput";
+import { PasswordInput } from "./PasswordInput";
 
 export interface LoginFormProps {
     data: AuthenticationRequest;
@@ -50,7 +51,7 @@ export const LoginForm = (props: LoginFormProps) => {
                                     onChange={(e: CustomEvent<InputChangeEventDetail>) => setValues({...values, email: e.detail.value ?? ''})}
                                     value={values.email}
                                 />
-                                <FormInput 
+                                <PasswordInput 
                                     label={"Password"}
                                     isValid={values.password.trim() !== ''}
                                     validationMessage={"Please enter your password."}

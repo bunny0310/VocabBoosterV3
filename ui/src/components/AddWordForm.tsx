@@ -1,4 +1,5 @@
-import { InputChangeEventDetail, IonButton, IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonContent, IonInput, IonItem, IonLabel, IonNote, IonSpinner, IonToast } from "@ionic/react"
+import { InputChangeEventDetail, IonBreadcrumb, IonBreadcrumbs, IonButton, IonButtons, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonContent, IonIcon, IonInput, IonItem, IonLabel, IonList, IonNote, IonSpinner, IonToast, IonToggle, IonToolbar } from "@ionic/react"
+import { refreshOutline } from "ionicons/icons";
 import React from "react";
 import { useHistory } from "react-router";
 import { WordModel } from "../api_clients/WordsApiClient";
@@ -18,7 +19,7 @@ export enum ApiCallStatus {
     FAIL
 }
 
-enum AddEditWord {
+export enum AddEditWord {
     Add,
     Edit
 }
@@ -52,27 +53,43 @@ export const AddWordForm = (props: AddWordFormProps) => {
     return (
         <>
             <IonContent>
+                <IonBreadcrumbs>
+                    <IonBreadcrumb href={'/tab1'}>
+                        Words
+                        <span slot={'seperator'}>|</span>
+                    </IonBreadcrumb>
+                    <IonBreadcrumb href={`/addeditword${action === AddEditWord.Edit ? `/${props.data.id}` : ``}`}>
+                         { action === AddEditWord.Add ? `New Word`: `Update Word` }
+                    </IonBreadcrumb>
+                </IonBreadcrumbs>
                 <IonCard>
                     <IonCardHeader>
-                        <IonCardTitle style={{"textAlign": "center"}}>
-                            {action === AddEditWord.Edit ? 'Edit' : 'Add'} Word
+                        <IonCardTitle>
+                            <IonToolbar>
+                            <IonButton color={'tertiary'} slot={'end'} onClick={() => setValues(new WordModel())}>
+                                <IonIcon icon={refreshOutline}></IonIcon>
+                            </IonButton>
+                            </IonToolbar>
+                            
+                            <FormInput 
+                                label={"Name"}
+                                isValid={values.name.trim() !== ''}
+                                validationMessage={"Please enter the word's name."}
+                                onChange={(e: CustomEvent<InputChangeEventDetail>) => setValues({...values, name: e.detail.value ?? ''})}
+                                value={values.name}
+                            />
                         </IonCardTitle>
+                        <IonCardSubtitle>
+                            <FormInput 
+                                label={"Meaning"}
+                                isValid={values.meaning.trim() !== ''}
+                                validationMessage={"Please enter the word's meaning."}
+                                onChange={(e: CustomEvent<InputChangeEventDetail>) => setValues({...values, meaning: e.detail.value ?? ''})}
+                                value={values.meaning}
+                            />
+                        </IonCardSubtitle>
                     </IonCardHeader>
                     <IonCardContent>
-                        <FormInput 
-                            label={"Name"}
-                            isValid={values.name.trim() !== ''}
-                            validationMessage={"Please enter the word's name."}
-                            onChange={(e: CustomEvent<InputChangeEventDetail>) => setValues({...values, name: e.detail.value ?? ''})}
-                            value={values.name}
-                        />
-                        <FormInput 
-                            label={"Meaning"}
-                            isValid={values.meaning.trim() !== ''}
-                            validationMessage={"Please enter the word's meaning."}
-                            onChange={(e: CustomEvent<InputChangeEventDetail>) => setValues({...values, meaning: e.detail.value ?? ''})}
-                            value={values.meaning}
-                        />
                         <FormChipInput 
                             label={"Sentences"}
                             isValid={values.sentences.length !== 0}
