@@ -1,0 +1,4 @@
+.listBlock {
+    overflow: auto;
+    word-wrap: break-word;
+}
