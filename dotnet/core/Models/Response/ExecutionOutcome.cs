@@ -1,3 +1,5 @@
+using System;
+
 namespace core.Models.Response {
 
     public class ExecutionOutcome {

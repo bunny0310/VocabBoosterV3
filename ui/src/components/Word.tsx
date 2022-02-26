@@ -16,6 +16,7 @@ import {
   IonList,
   IonNote,
   IonPopover,
+  IonToast,
   IonToolbar,
 } from "@ionic/react";
 import {
@@ -28,6 +29,7 @@ import {
   repeat,
   trashBin,
   trashOutline,
+  volumeMedium,
 } from "ionicons/icons";
 import {
   RouteComponentProps,
@@ -35,6 +37,8 @@ import {
   RouterProps,
   withRouter,
 } from "react-router-dom";
+import container from "../SettingsManager";
+import { ITextToSpeechApiClient } from "../api_clients/ITextToSpeechApiClient";
 
 enum WordViewOption {
   None,
@@ -50,6 +54,7 @@ interface WordState {
     show: boolean,
     event: any
   };
+  showPlayFailToast: boolean
 }
 
 interface WordProps extends WordModel, RouteComponentProps {}
@@ -64,8 +69,11 @@ export class Word extends React.Component<WordProps, WordState> {
         show: false,
         event: undefined
       },
+      showPlayFailToast: false
     };
   }
+
+  textToSpeechApiClient = container.get<ITextToSpeechApiClient>('ITextToSpeechApiClient')
 
   selectWordViewOption = (wordViewOption: WordViewOption): void => {
     let informationArr: string[] = [];
@@ -106,6 +114,12 @@ export class Word extends React.Component<WordProps, WordState> {
       .join(". ");
   };
 
+  play = (): void => {
+    const played = this.textToSpeechApiClient.convertTextToSpeech(this.props.name, () => this.setState({
+      showPlayFailToast: true,
+    }))
+  }
+
   render(): React.ReactNode {
     const styleOptionSelected = (option: WordViewOption): string => {
       return this.state.selectedWordViewOption === option ? "block" : "none";
@@ -130,6 +144,13 @@ export class Word extends React.Component<WordProps, WordState> {
                       event: this.state.popoveroptions.event ? undefined : e
                     }
                   })
+                }}
+              />
+              <IonIcon
+                style={{float: 'right'}}
+                icon={volumeMedium}
+                onClick={() => {
+                  this.play()
                 }}
               />
             </IonCardTitle>
@@ -246,6 +267,15 @@ export class Word extends React.Component<WordProps, WordState> {
             </IonList>
           </IonCardContent>
         </IonCard>
+        <IonToast
+          isOpen={this.state.showPlayFailToast}
+          color={'danger'}
+          message={'Daily API limit reached or conversion error.'}
+          duration={2000}
+          onDidDismiss={() => this.setState({
+            showPlayFailToast: false,
+          })}
+        />
       </>
     );
   }
