@@ -1,0 +1,43 @@
+version: '3.3'
+services:
+  words:
+    build:
+      context: ./dotnet
+      dockerfile: Dockerfile.words
+    environment:
+      - MongoConnectionString=${MongoConnectionString}
+      - MongoDbName=${MongoDbName}
+      - JwtKey=${JwtKey}
+      - JwtIssuer=${JwtIssuer}
+    ports:
+      - 5001:5001
+    networks:
+      - network
+  
+  auth:
+    build:
+      context: ./dotnet
+      dockerfile: Dockerfile.auth
+    environment:
+      - MongoConnectionString=${MongoConnectionString}
+      - MongoDbName=${MongoDbName}
+      - JwtKey=${JwtKey}
+      - JwtIssuer=${JwtIssuer}
+    ports:
+      - 5002:5001
+    networks:
+      - network
+
+  mongo:
+    image: mongo:latest
+    environment:
+      - MONGO_INITDB_DATABASE=db
+    volumes:
+      - ./database/data:/data/db
+    ports:
+      - 5003:27017
+    networks:
+      - network
+
+networks:
+  network:
