@@ -10,7 +10,7 @@ import { _messageBus } from "../App";
 import { Messages } from "../services/MessageBus";
 import { BaseApiClient } from "./BaseApiClient";
 
-const baseUrl = `${process.env.NODE_ENV === 'production' ? 'https://vocabbooster-words.herokuapp.com/Words' : 'https://localhost:7296/Words'}`;
+const baseUrl = `${process.env.NODE_ENV === 'production' ? 'https://vocabbooster-words.herokuapp.com/Words' : 'https://localhost:5001/Words'}`;
 
 export class WordModel {
     id?: string = undefined
