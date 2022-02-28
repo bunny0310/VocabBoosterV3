@@ -1,0 +1,63 @@
+version: '3.3'
+services:
+  ui:
+    build:
+      context: ./ui
+    environment:
+      - REACT_APP_SPEECHTOTEXTKEY=${REACT_APP_SPEECHTOTEXTKEY}
+    volumes:
+      - ./ui/src:/app/src
+    ports:
+      - 3000:3000
+    networks:
+      - network
+      
+  words:
+    build:
+      context: ./dotnet
+      dockerfile: Dockerfile.words
+    environment:
+      - MongoConnectionString=${MongoConnectionString}
+      - MongoDbName=${MongoDbName}
+      - JwtKey=${JwtKey}
+      - JwtIssuer=${JwtIssuer}
+    volumes:
+      - ./dotnet/words:/app
+      - ./dotnet/core:/core
+    ports:
+      - 5001:5000
+    networks:
+      - network
+  
+  auth:
+    build:
+      context: ./dotnet
+      dockerfile: Dockerfile.auth
+    environment:
+      - MongoConnectionString=${MongoConnectionString}
+      - MongoDbName=${MongoDbName}
+      - JwtKey=${JwtKey}
+      - JwtIssuer=${JwtIssuer}
+    volumes:
+      - ./dotnet/auth:/app
+      - ./dotnet/core:/core
+    ports:
+      - 5002:5000
+    networks:
+      - network
+
+  mongo:
+    image: mongo:latest
+    environment:
+      - MONGO_INITDB_DATABASE=db
+    volumes:
+      - ./database/data:/data/db
+      - ./database/scripts:/scripts
+    ports:
+      - 5003:27017
+    # entrypoint: ['sh', 'scripts/startup.sh']
+    networks:
+      - network
+
+networks:
+  network:

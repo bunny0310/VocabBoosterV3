@@ -6,20 +6,25 @@ EXPOSE 5000
 
 # stage 2
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
-WORKDIR ../app
-COPY *.csproj ./
+
+WORKDIR /core
+COPY core/*.csproj ./
 RUN dotnet restore
+COPY core/. ./
 
-COPY . ./
+WORKDIR ../app
+COPY auth/*.csproj ./
+RUN dotnet restore
+COPY auth/. ./
 
-RUN dotnet build "words.csproj" -c Release -o /app/build
+RUN dotnet build "auth.csproj" -c Release -o /app/build
 
 # stage 3
 FROM build as publish
-RUN dotnet publish "words.csproj" -c Release -o /app/publish
+RUN dotnet publish "auth.csproj" -c Release -o /app/publish
 
 # final stage
 FROM base as final
 WORKDIR /app
 COPY --from=publish /app/publish .
-CMD ASPNETCORE_URLS=http://*:$PORT dotnet words.dll
+CMD ASPNETCORE_URLS=http://*:$PORT dotnet auth.dll
