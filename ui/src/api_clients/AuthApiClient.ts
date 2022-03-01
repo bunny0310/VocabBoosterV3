@@ -5,7 +5,7 @@ import axios from "axios";
 import { _messageBus } from "../App";
 import { Messages } from "../services/MessageBus";
 
-const baseUrl = `${process.env.NODE_ENV === 'production' ? 'https://vocabbooster-auth.herokuapp.com/Auth' : 'https://vocabbooster-auth.herokuapp.com/Auth'}`;
+const baseUrl = `${process.env.NODE_ENV === 'production' ? 'https://vocabbooster-auth.herokuapp.com/Auth' : 'http://localhost:5002/Auth'}`;
 
 export class AuthenticationRequest {
     email: string = '';
