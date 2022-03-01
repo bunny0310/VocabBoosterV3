@@ -53,9 +53,9 @@ services:
     volumes:
       - ./database/data:/data/db
       - ./database/scripts:/scripts
+    container_name: vb_mongo
     ports:
       - 5003:27017
-    # entrypoint: ['sh', 'scripts/startup.sh']
     networks:
       - network
 
