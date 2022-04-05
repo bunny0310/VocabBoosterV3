@@ -35,8 +35,15 @@ export const LoginForm = (props: LoginFormProps) => {
         outcome == null ? setStatus(ApiCallStatus.FAIL) : setStatus(ApiCallStatus.SUCCESS);
     }
 
+    const handleEnterPressed = (event: { keyCode: number; }) => {
+        if(event.keyCode == 13) {
+            setStatus(ApiCallStatus.PROCESSING);
+            login();
+        }
+    }
+
     return (<>
-                    <IonContent className="center">
+                    <IonContent className="center" onKeyUp={handleEnterPressed}>
                         <IonCard>
                             <IonCardHeader>
                                 <IonCardTitle style={{"textAlign": "center"}}>
