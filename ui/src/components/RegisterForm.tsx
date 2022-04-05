@@ -9,11 +9,22 @@ import { PasswordInput } from "./PasswordInput";
 
 
 
+interface IRegisterFormState {
+    data: RegisterRequest,
+    apiStatus: ApiCallStatus
+}
 
-export class RegisterForm extends React.Component<{},{firstName: string, lastName: string, email: string, password: string, apiStatus: ApiCallStatus}>{
+interface IRegisterFormProps {
+
+}
+
+export class RegisterForm extends React.Component<IRegisterFormProps, IRegisterFormState> {
     constructor(props: any){
         super(props);
-        this.state = {firstName: '', lastName: '', email: '', password: '', apiStatus: ApiCallStatus.SUCCESS};
+        this.state = {
+            data: new RegisterRequest(),
+            apiStatus: ApiCallStatus.NONE
+        };
 
         this.handleFirstNameChange = this.handleFirstNameChange.bind(this);
         this.handleLastNameChange = this.handleLastNameChange.bind(this);
@@ -23,27 +34,65 @@ export class RegisterForm extends React.Component<{},{firstName: string, lastNam
         this.onDidDismiss = this.onDidDismiss.bind(this);
     }
 
+    isFormValid: any = {
+        firstName: this.state.data.firstName !== '',
+        lastName: this.state.data.lastName !== '',
+        email: this.state.data.email !== '',
+        password: this.state.data.password !== ''
+    }
+
     async register() {
-        const {firstName, lastName, email, password} = this.state;
-        const outcome: string | undefined = await _regApi.register({firstName: firstName, lastName: lastName, email: email, password: password});
+        if(!this.state.data) {
+            return
+        }
+        const outcome: string | undefined = await _regApi.register(this.state.data);
         outcome == null ? this.setState({apiStatus: ApiCallStatus.FAIL}) : this.setState({apiStatus: ApiCallStatus.SUCCESS});
     }
 
-    handleFirstNameChange(e: any){
-        this.setState({firstName: e.target.value});
+    handleFirstNameChange(e: any) {
+        this.setState(
+            {
+                data: {
+                    // ... creating new properties except for firstName
+                    ...this.state.data, 
+                    firstName: e.target.value ?? ''
+                }    
+            }
+        );
     }
 
-    handleLastNameChange(e: any){
-        this.setState({lastName: e.target.value});
+    handleLastNameChange(e: any) {
+        this.setState(
+            {
+                data: {
+                    ...this.state.data, 
+                    lastName: e.target.value ?? ''
+                }    
+            }
+        );
     }
 
-    handleEmailChange(e: any){
-        this.setState({email: e.target.value})
+    handleEmailChange(e: any) {
+        this.setState(
+            {
+                data: {
+                    ...this.state.data, 
+                    email: e.target.value ?? ''
+                }    
+            }
+        );
     }
-    handlePassChange(e: any){
-        this.setState({password: e.target.value})
+    handlePassChange(e: any) {
+        this.setState(
+            {
+                data: {
+                    ...this.state.data, 
+                    password: e.target.value ?? ''
+                }    
+            }
+        );
     }
-    onClick(e: any){
+    onClick(e: any) {
         this.register();
         this.setState({apiStatus: ApiCallStatus.PROCESSING});
     }
@@ -66,34 +115,34 @@ export class RegisterForm extends React.Component<{},{firstName: string, lastNam
                 <IonCardContent>
                 <FormInput 
                         label={"First Name"}
-                        isValid={this.validFormString(this.state.firstName)}
+                        isValid={this.validFormString(this.state.data.firstName)}
                         validationMessage={"Please enter your First Name."}
                         onChange={this.handleFirstNameChange}
-                        value={this.state.firstName}
+                        value={this.state.data.firstName}
                     />
                     <FormInput 
                         label={"Last Name"}
-                        isValid={this.validFormString(this.state.lastName)}
+                        isValid={this.validFormString(this.state.data.lastName)}
                         validationMessage={"Please enter your Last Name."}
                         onChange={this.handleLastNameChange}
-                        value={this.state.lastName}
+                        value={this.state.data.lastName}
                     />
                     <FormInput 
                         label={"Email Address"}
-                        isValid={this.validFormString(this.state.email)}
+                        isValid={this.validFormString(this.state.data.email)}
                         validationMessage={"Please enter your email address."}
                         onChange={this.handleEmailChange}
-                        value={this.state.email}
+                        value={this.state.data.email}
                     />
                     <PasswordInput 
                         label={"Password"}
-                        isValid={this.validFormString(this.state.password)}
+                        isValid={this.validFormString(this.state.data.password)}
                         validationMessage={"Please enter your password."}
                         onChange={this.handlePassChange}
-                        value={this.state.password}
+                        value={this.state.data.password}
                     />
                     <IonButton 
-                        disabled={this.state.email === '' || this.state.password === '' || this.state.apiStatus === ApiCallStatus.PROCESSING} 
+                        disabled={this.state.data.firstName === '' && this.state.data.lastName === '' || this.state.apiStatus === ApiCallStatus.PROCESSING} 
                         onClick={this.onClick} 
                         fill={"solid"} 
                         size={"large"} 

@@ -8,7 +8,7 @@ import { Messages } from "../services/MessageBus";
 //don't know what the baseURL should be
 const baseUrl = `${process.env.NODE_ENV === 'production' ? '' : ''}`;
 
-export class RegisterRequest{
+export class RegisterRequest {
     firstName: string = '';
     lastName: string = '';
     email: string = '';
@@ -16,7 +16,7 @@ export class RegisterRequest{
 }
 
 @injectable()
-export class RegApiClient{
+export class RegApiClient {
     register = async(request: RegisterRequest) => {
         try {
             const result = await axios.post(baseUrl, request);
