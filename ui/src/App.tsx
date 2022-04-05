@@ -47,15 +47,19 @@ import { IAuthApiClient } from './api_clients/IAuthApiClient';
 import { Messages } from './services/MessageBus';
 import { LoginForm } from './components/LoginForm';
 import { Login } from './pages/Login';
+import { RegisterForm} from './components/RegisterForm';
 import { AuthContext } from './pages/Contexts/AuthContext';
 import { Storage } from '@capacitor/storage';
 import { jwtKeyName } from './api_clients/AuthApiClient';
+import { IRegApiClient } from './api_clients/IRegApiClient';
+import { Register } from './pages/Register';
 
 setupIonicReact();
 
 export const _wordsApi = container.get<IWordsApiClient>("IWordsApiClient");
 export const _authApi = container.get<IAuthApiClient>("IAuthApiClient");
 export const _messageBus = container.get<IMessageBus>("IMessageBus");
+export const _regApi = container.get<IRegApiClient>("IRegApiClient");
 
 const App: React.FC = () => {
   const [auth, setAuth] = React.useState<boolean>(_authApi.authorize());
@@ -72,7 +76,7 @@ const App: React.FC = () => {
     _messageBus.on(Messages.Logout, async () => logout());
   }, [])
 
-  return (
+  return ( <>
     <AuthContext.Provider value={auth}>
       <IonApp>
         <IonHeader>
@@ -122,6 +126,7 @@ const App: React.FC = () => {
                       ? <Route path="/login" component={Login} />
                       : <Route path="/login"><Redirect to="/tab1" /></Route>
                     } */}
+                    <Route path="/register" component={Register} />
                     <Route path="/login" component={Login} />
                   <Route>
                     <Page404 
@@ -169,7 +174,8 @@ const App: React.FC = () => {
           </IonModal>
         </IonContent>
       </IonApp>
-    </AuthContext.Provider>  
+    </AuthContext.Provider>
+    </>
     );
   }
 

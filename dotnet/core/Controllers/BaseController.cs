@@ -25,5 +25,10 @@ namespace core.Controllers
             Console.WriteLine("ishaan");
             return StatusCode(500, model.Exception.Message);
         }
+
+        public Redirect Register(string email, string password)
+        {
+            return Redirect();
+        }
     }
 }
