@@ -18,17 +18,10 @@ namespace core.Controllers
                     return BadRequest();
                 }
                 if (model.Exception is UnauthorizedAccessException) {
-                    Console.WriteLine("ishaan");
                     return Unauthorized();
                 }
             } 
-            Console.WriteLine("ishaan");
             return StatusCode(500, model.Exception.Message);
-        }
-
-        public Redirect Register(string email, string password)
-        {
-            return Redirect();
         }
     }
 }

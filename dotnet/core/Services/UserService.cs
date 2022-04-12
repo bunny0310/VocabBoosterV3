@@ -11,8 +11,7 @@ namespace core.Services
     public class UserService : IUserService
     {
         private readonly IMongoCollection<User> _usersCollection;
-        public UserService(
-            IOptions<VocabBoosterDatabaseSettings> vocabBoosterDatabaseSettings)
+        public UserService()
         {
             var mongoClient = new MongoClient(
                 ConfigurationVariables.MongoConnectionString);

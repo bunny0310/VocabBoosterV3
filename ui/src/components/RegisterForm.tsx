@@ -19,29 +19,15 @@ interface IRegisterFormProps {
 }
 
 export class RegisterForm extends React.Component<IRegisterFormProps, IRegisterFormState> {
-    constructor(props: any){
+    constructor(props: any) {
         super(props);
         this.state = {
             data: new RegisterRequest(),
             apiStatus: ApiCallStatus.NONE
         };
-
-        this.handleFirstNameChange = this.handleFirstNameChange.bind(this);
-        this.handleLastNameChange = this.handleLastNameChange.bind(this);
-        this.handleEmailChange = this.handleEmailChange.bind(this);
-        this.handlePassChange = this.handlePassChange.bind(this);
-        this.onClick = this.onClick.bind(this);
-        this.onDidDismiss = this.onDidDismiss.bind(this);
     }
 
-    isFormValid: any = {
-        firstName: this.state.data.firstName !== '',
-        lastName: this.state.data.lastName !== '',
-        email: this.state.data.email !== '',
-        password: this.state.data.password !== ''
-    }
-
-    async register() {
+    register = async () => {
         if(!this.state.data) {
             return
         }
@@ -49,7 +35,7 @@ export class RegisterForm extends React.Component<IRegisterFormProps, IRegisterF
         outcome == null ? this.setState({apiStatus: ApiCallStatus.FAIL}) : this.setState({apiStatus: ApiCallStatus.SUCCESS});
     }
 
-    handleFirstNameChange(e: any) {
+    handleFirstNameChange = (e: any) => {
         this.setState(
             {
                 data: {
@@ -61,7 +47,7 @@ export class RegisterForm extends React.Component<IRegisterFormProps, IRegisterF
         );
     }
 
-    handleLastNameChange(e: any) {
+    handleLastNameChange = (e: any) => {
         this.setState(
             {
                 data: {
@@ -72,7 +58,7 @@ export class RegisterForm extends React.Component<IRegisterFormProps, IRegisterF
         );
     }
 
-    handleEmailChange(e: any) {
+    handleEmailChange = (e: any) => {
         this.setState(
             {
                 data: {
@@ -82,7 +68,7 @@ export class RegisterForm extends React.Component<IRegisterFormProps, IRegisterF
             }
         );
     }
-    handlePassChange(e: any) {
+    handlePassChange = (e: any) => {
         this.setState(
             {
                 data: {
@@ -92,18 +78,29 @@ export class RegisterForm extends React.Component<IRegisterFormProps, IRegisterF
             }
         );
     }
-    onClick(e: any) {
+
+    onClick = (e: any) => {
         this.register();
         this.setState({apiStatus: ApiCallStatus.PROCESSING});
     }
 
-    validFormString(str: string) {
+    validFormString = (str: string) => {
         return str.trim() !== '';
     }
 
-    onDidDismiss(e: any){;}
+    onDidDismiss = (e: any) => {
+        
+    }
 
-    render(){
+    render() {
+        const validationObject: any = {
+            firstName: this.state.data.firstName !== '',
+            lastName: this.state.data.lastName !== '',
+            email: this.state.data.email !== '',
+            password: this.state.data.password !== ''
+        }
+        const isFormValid = !Object.values(validationObject).includes(false)
+        
         return(<>
         <IonContent className="center">
             <IonCard>
@@ -142,7 +139,7 @@ export class RegisterForm extends React.Component<IRegisterFormProps, IRegisterF
                         value={this.state.data.password}
                     />
                     <IonButton 
-                        disabled={this.state.data.firstName === '' && this.state.data.lastName === '' || this.state.apiStatus === ApiCallStatus.PROCESSING} 
+                        disabled={!isFormValid || this.state.apiStatus === ApiCallStatus.PROCESSING} 
                         onClick={this.onClick} 
                         fill={"solid"} 
                         size={"large"} 

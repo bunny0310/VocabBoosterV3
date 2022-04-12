@@ -13,8 +13,7 @@ namespace core.Services
     {
         private readonly IMongoCollection<Word> _wordsCollection;
         private int totalCount = -1;
-        public WordsService(
-            IOptions<VocabBoosterDatabaseSettings> vocabBoosterDatabaseSettings)
+        public WordsService()
         {
             var mongoClient = new MongoClient(
                 ConfigurationVariables.MongoConnectionString);
@@ -23,6 +22,11 @@ namespace core.Services
                 ConfigurationVariables.MongoDb);
 
             _wordsCollection = mongoDatabase.GetCollection<Word>("words");
+        }
+
+        public WordsService(IMongoCollection<Word> wordsCollection)
+        {
+            _wordsCollection = wordsCollection;
         }
 
         public async Task<List<Word>> GetWords(int limit = 5, int offset = 0, SearchWordsApiRequest requestBody = null)
