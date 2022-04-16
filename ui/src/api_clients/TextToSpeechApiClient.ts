@@ -18,7 +18,7 @@ export class TextToSpeechApiClient extends BaseApiClient {
                 })
                     .then(res => {
                         const data = res.data
-                        const blob = new Blob(data)
+                        const blob = new Blob([JSON.stringify(data)])
                         console.log(File.applicationDirectory)
                         File.writeFile(
                             File.dataDirectory,
@@ -37,6 +37,8 @@ export class TextToSpeechApiClient extends BaseApiClient {
                 console.log("Logging playback error: " + e.error);
                 handler && handler();
             });
-            source.play()
+            if (!(source.duration > 0 && !source.paused)) {
+                source.play()
+            }
     }
 }

@@ -1,10 +1,8 @@
 import { Container } from "inversify";
 import { AuthApiClient } from "./api_clients/AuthApiClient";
 import { IAuthApiClient } from "./api_clients/IAuthApiClient";
-import { IRegApiClient } from "./api_clients/IRegApiClient";
 import { ITextToSpeechApiClient } from "./api_clients/ITextToSpeechApiClient";
 import { IWordsApiClient } from "./api_clients/IWordsApiClient";
-import { RegApiClient } from "./api_clients/RegApiClient";
 import { TextToSpeechApiClient } from "./api_clients/TextToSpeechApiClient";
 import { WordsApiClient } from "./api_clients/WordsApiClient";
 import { IMessageBus } from "./services/IMessageBus";
@@ -27,9 +25,5 @@ container
 container
 .bind<ITextToSpeechApiClient>('ITextToSpeechApiClient')
 .to(TextToSpeechApiClient)
-
-container
-.bind<IRegApiClient>('IRegApiClient')
-.to(RegApiClient)
 
 export default container

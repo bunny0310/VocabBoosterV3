@@ -1,15 +1,20 @@
-import { injectable } from "inversify";
-import "reflect-metadata"; 
-import { Storage } from '@capacitor/storage';
-import axios from "axios";
-import { _messageBus } from "../App";
-import { Messages } from "../services/MessageBus";
+import { injectable } from "inversify"
+import "reflect-metadata"
+import { Storage } from '@capacitor/storage'
+import axios from "axios"
+import { _messageBus } from "../App"
+import { Messages } from "../services/MessageBus"
 
 const baseUrl = `${process.env.NODE_ENV === 'production' ? 'https://vocabbooster-auth.herokuapp.com/Auth' : 'http://localhost:5002/Auth'}`;
 
 export class AuthenticationRequest {
-    email: string = '';
-    password: string = '';
+    email: string = ''
+    password: string = ''
+}
+
+export class RegisterRequest extends AuthenticationRequest {
+    firstName: string = ''
+    lastName: string = ''
 }
 
 export interface TokenValidationRequest {
@@ -23,6 +28,18 @@ export class AuthApiClient {
     login = async (request: AuthenticationRequest) => {
         try {
             const result = await axios.post(baseUrl, request);
+            const data = await result.data;
+            await Storage.set({"key": jwtKeyName, "value": data});
+            return data;
+        } catch (error: any) {
+            return undefined;
+        }
+    }
+
+    signup = async (request: AuthenticationRequest) => {
+        try {
+            const url = `${baseUrl}/signup`
+            const result = await axios.post(url, request);
             const data = await result.data;
             await Storage.set({"key": jwtKeyName, "value": data});
             return data;

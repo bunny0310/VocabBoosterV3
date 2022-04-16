@@ -1,5 +1,5 @@
 import React from "react"
-import { RegisterRequest } from "../api_clients/RegApiClient"
+import { RegisterRequest } from "../api_clients/AuthApiClient"
 import { RegisterForm } from "../components/RegisterForm"
 
 interface RegisterProps{

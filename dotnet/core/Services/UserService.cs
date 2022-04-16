@@ -38,5 +38,37 @@ namespace core.Services
             }
 
         }
+
+        public async Task<ExecutionOutcome<UserDTO>> SignupUser(SignupRequest request)
+        {
+            try
+            {
+                var isUserPresent =  _usersCollection
+                    .Find(u => u.Email.Equals(request.Email))
+                    .FirstOrDefault() != null;
+                
+                if (isUserPresent)
+                {
+                    throw new BadHttpRequestException("User already exists!");
+                }
+
+                var user = new User()
+                {
+                    FirstName = request.FirstName,
+                    LastName = request.LastName,
+                    Email = request.Email,
+                    Password = request.Password
+                };
+
+                await _usersCollection
+                    .InsertOneAsync(user);
+
+                return new ExecutionOutcome<UserDTO>(){ Data = new UserDTO() {Email = user.Email}, IsSuccessful = true };
+            }
+            catch (Exception ex)
+            {
+                return new ExecutionOutcome<UserDTO>(){ IsSuccessful = false, Exception = ex };
+            }
+        }
     }
 }

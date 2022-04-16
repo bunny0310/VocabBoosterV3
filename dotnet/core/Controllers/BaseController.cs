@@ -15,7 +15,7 @@ namespace core.Controllers
             if (model.Exception != null) 
             {
                 if (model.Exception is BadHttpRequestException) {
-                    return BadRequest();
+                    return BadRequest(model.Exception.Data);
                 }
                 if (model.Exception is UnauthorizedAccessException) {
                     return Unauthorized();

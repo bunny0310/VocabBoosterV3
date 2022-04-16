@@ -3,6 +3,7 @@ import React from "react";
 import { createRef } from "react";
 
 export interface FormInputProps {
+    name?: string
     label: string;
     value?: string;
     onChange?: (e: CustomEvent<InputChangeEventDetail>) => void;
@@ -14,26 +15,16 @@ export interface FormInputProps {
     validationMessage?: string;
 }
 export const FormInput = (props: FormInputProps) => {
-    const isValid = props.isValid ?? true;
-    const [touched, setTouched] = React.useState<boolean>(false);
 
     return (
         <>
-            <IonItem>
-            {(isValid || !touched) && <IonLabel position="stacked" color={"dark"}>{props.label}</IonLabel>}
-            { !isValid && touched && <IonNote color={'danger'}>{props.validationMessage}</IonNote>}
-                <IonInput
-                    className={"formInput"}
-                    onIonChange={(e: CustomEvent<InputChangeEventDetail>) => props.onChange && props.onChange(e)}
-                    onKeyUp={(e: any) => {
-                        !touched && setTouched(true);
-                    }}
-                    onIonBlur={(e: CustomEvent<FocusEvent>) => {props.onBlur && props.onBlur(e)}}
-                    onIonFocus={(e: CustomEvent<FocusEvent>) => {props.onFocus && props.onFocus(e)}}
-                    placeholder={props.placeholder}
-                    value={props.value}
-                />            
-            </IonItem>
+            <IonInput
+                name={props.name}
+                onIonChange={(e: CustomEvent<InputChangeEventDetail>) => props.onChange && props.onChange(e)}
+                onIonBlur={(e: CustomEvent<FocusEvent>) => {props.onBlur && props.onBlur(e)}}
+                onIonFocus={(e: CustomEvent<FocusEvent>) => {props.onFocus && props.onFocus(e)}}
+                placeholder={props.placeholder}
+            />            
         </>
     )
 }

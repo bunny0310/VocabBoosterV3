@@ -1,11 +1,15 @@
-import { IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent, InputChangeEventDetail, IonButton, IonSpinner, IonToast } from "@ionic/react";
+import { IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent, InputChangeEventDetail, IonButton, IonSpinner, IonToast, IonInput } from "@ionic/react";
 import  React  from 'react';
 import { useHistory } from "react-router";
-import { RegisterRequest } from "../api_clients/RegApiClient";
-import { _authApi, _regApi } from "../App";
+import { RegisterRequest } from "../api_clients/AuthApiClient";
+import { _authApi, _messageBus } from "../App";
+import { Messages } from "../services/MessageBus";
 import { ApiCallStatus } from "./AddWordForm";
 import { FormInput } from "./FormInput";
 import { PasswordInput } from "./PasswordInput";
+import { RedirectComponent } from "./RedirectComponent";
+import { ErrorMessage, Field, Form, Formik } from "formik"
+import * as Yup from "yup"
 
 
 
@@ -17,6 +21,19 @@ interface IRegisterFormState {
 interface IRegisterFormProps {
 
 }
+
+const validationSchema = Yup.object().shape({
+    firstName: Yup.string()
+        .required('First name required'),
+    lastName: Yup.string()
+        .required('Last name required'),
+    email: Yup.string()
+        .required('Email required.')
+        .email('Incorrect email.'),
+    password: Yup.string()
+        .required('Password required.')
+        .min(5, 'At least 5 characters.')
+})
 
 export class RegisterForm extends React.Component<IRegisterFormProps, IRegisterFormState> {
     constructor(props: any) {
@@ -31,15 +48,14 @@ export class RegisterForm extends React.Component<IRegisterFormProps, IRegisterF
         if(!this.state.data) {
             return
         }
-        const outcome: string | undefined = await _regApi.register(this.state.data);
-        outcome == null ? this.setState({apiStatus: ApiCallStatus.FAIL}) : this.setState({apiStatus: ApiCallStatus.SUCCESS});
+        const outcome: string | undefined = await _authApi.signup(this.state.data)
+        outcome == null ? this.setState({apiStatus: ApiCallStatus.FAIL}) : this.setState({apiStatus: ApiCallStatus.SUCCESS})
     }
 
     handleFirstNameChange = (e: any) => {
         this.setState(
             {
                 data: {
-                    // ... creating new properties except for firstName
                     ...this.state.data, 
                     firstName: e.target.value ?? ''
                 }    
@@ -80,29 +96,26 @@ export class RegisterForm extends React.Component<IRegisterFormProps, IRegisterF
     }
 
     onClick = (e: any) => {
-        this.register();
-        this.setState({apiStatus: ApiCallStatus.PROCESSING});
+        this.register()
+        this.setState({apiStatus: ApiCallStatus.PROCESSING})
     }
 
     validFormString = (str: string) => {
-        return str.trim() !== '';
+        return str.trim() !== ''
     }
 
     onDidDismiss = (e: any) => {
-        
+        if (this.state.apiStatus === ApiCallStatus.SUCCESS) {
+            _messageBus.dispatch<string>(Messages.Login, '')
+            _messageBus.dispatch(Messages.Redirect, '/tab1')
+        }
     }
 
     render() {
-        const validationObject: any = {
-            firstName: this.state.data.firstName !== '',
-            lastName: this.state.data.lastName !== '',
-            email: this.state.data.email !== '',
-            password: this.state.data.password !== ''
-        }
-        const isFormValid = !Object.values(validationObject).includes(false)
         
         return(<>
-        <IonContent className="center">
+        {/* <RedirectComponent /> */}
+        {/* <IonContent className="center"> */}
             <IonCard>
                 <IonCardHeader>
                     <IonCardTitle style={{"textAlign": "center"}}>
@@ -110,7 +123,57 @@ export class RegisterForm extends React.Component<IRegisterFormProps, IRegisterF
                     </IonCardTitle>
                 </IonCardHeader>
                 <IonCardContent>
-                <FormInput 
+                    <Formik
+                        initialValues={new RegisterRequest()}
+                        validationSchema={validationSchema}
+                        onSubmit={this.onClick}
+                    >
+                        {formikProps => <>
+                            <Form>
+                                <Field
+                                    as={FormInput}
+                                    name='firstName'
+                                    placeholder='First Name'
+                                />
+                                {/* <ErrorMessage
+                                    name='firstName'
+                                    component='div'
+                                    className='error'
+                                />
+                                <Field
+                                    as={FormInput}
+                                    name='lastName'
+                                    placeholder='Last Name'
+                                />
+                                <ErrorMessage
+                                    name='lastName'
+                                    component='div'
+                                    className='error'
+                                />
+                                <Field
+                                    as={FormInput}
+                                    name='email'
+                                    placeholder='Email'
+                                /> 
+                                <ErrorMessage
+                                    name='email'
+                                    component='div'
+                                    className='error'
+                                />
+                                <Field
+                                    as={PasswordInput}
+                                    name='password'
+                                    placeholder='Password'
+                                /> 
+                                <ErrorMessage
+                                    name='password'
+                                    component='div'
+                                    className='error'
+                                />                                   */}
+                            </Form>                                
+                        </>}
+                    </Formik>
+                    {/* <FormInput 
                         label={"First Name"}
                         isValid={this.validFormString(this.state.data.firstName)}
                         validationMessage={"Please enter your First Name."}
@@ -147,7 +210,7 @@ export class RegisterForm extends React.Component<IRegisterFormProps, IRegisterF
                             REGISTER
                             {this.state.apiStatus === ApiCallStatus.PROCESSING
                                 && <IonSpinner name={"dots"} />}
-                    </IonButton>
+                    </IonButton> */}
                 </IonCardContent>
             </IonCard>
             <IonToast
@@ -155,10 +218,10 @@ export class RegisterForm extends React.Component<IRegisterFormProps, IRegisterF
                 || this.state.apiStatus === ApiCallStatus.SUCCESS}
             color={this.state.apiStatus === ApiCallStatus.SUCCESS ? 'success' : (this.state.apiStatus === ApiCallStatus.FAIL ? 'danger': 'dark')}
             onDidDismiss={this.onDidDismiss}
-            message={this.state.apiStatus === ApiCallStatus.SUCCESS ? `Registered successfully` : 'Sorry cannot register you in at this moment.'}
-            duration={600}
+            message={this.state.apiStatus === ApiCallStatus.SUCCESS ? `Registered successfully, signing you in` : 'Sorry cannot register you in at this moment.'}
+            duration={3000}
             />
-        </IonContent>
+        {/* </IonContent> */}
         </>)
     }
 }
