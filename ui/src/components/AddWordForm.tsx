@@ -1,4 +1,5 @@
 import { InputChangeEventDetail, IonBreadcrumb, IonBreadcrumbs, IonButton, IonButtons, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonContent, IonIcon, IonInput, IonItem, IonLabel, IonList, IonNote, IonSpinner, IonToast, IonToggle, IonToolbar } from "@ionic/react"
+import { ErrorMessage, Field, Form, Formik } from "formik";
 import { refreshOutline } from "ionicons/icons";
 import React from "react";
 import { useHistory } from "react-router";
@@ -7,6 +8,7 @@ import { _messageBus, _wordsApi } from "../App";
 import { Messages } from "../services/MessageBus";
 import { FormChipInput } from "./FormChipInput";
 import { FormInput } from "./FormInput";
+import * as Yup from 'yup'
 
 export interface AddWordFormProps {
     data: WordModel
@@ -26,26 +28,30 @@ export enum AddEditWord {
 
 export const AddWordForm = (props: AddWordFormProps) => {
     const history = useHistory();
-    const [values, setValues] = React.useState<WordModel>(props.data);
     const [status, setStatus] = React.useState<ApiCallStatus>(ApiCallStatus.NONE);
     const [action, setAction] = React.useState<AddEditWord>(AddEditWord.Add);
     React.useEffect(() => {
-        setValues(props.data);
         setAction(props.data.id ? AddEditWord.Edit : AddEditWord.Add);
         _messageBus.dispatch<string>(Messages.CloseSearchModal, "");
     }, [props.data])
 
-    const isFormValid: any = {
-        name: values.name !== '',
-        meaning: values.name !== '',
-        sentences: values.sentences.length !== 0,
-        synonyms: values.synonyms.length !== 0,
-        types: values.types.length !== 0,
-    } 
+    const validationSchema = Yup.object().shape({
+        name: Yup.string()
+            .required('Name is required.'),
+        meaning: Yup.string()
+            .required('Meaning is required.'),
+        sentences: Yup.array()
+            .of(Yup.string())
+            .min(1, 'At least one sentence required'),
+        synonyms: Yup.array()
+            .of(Yup.string())
+            .min(1, 'At least one synonym required'),
+        types: Yup.array()
+            .of(Yup.string())
+            .min(1, 'At least one type required')
+    })
 
-    let disabled = Object.values(isFormValid).includes(false);
-
-    const submitWord = async (): Promise<void> => {
+    const submitWord = async (values: WordModel): Promise<void> => {
         const outcome: string | undefined = action === AddEditWord.Edit ? await (await _wordsApi.editWord(values)).data : await (await _wordsApi.addWord(values)).data;
         outcome == null ? setStatus(ApiCallStatus.FAIL) : setStatus(ApiCallStatus.SUCCESS);
     }
@@ -62,83 +68,118 @@ export const AddWordForm = (props: AddWordFormProps) => {
                          { action === AddEditWord.Add ? `New Word`: `Update Word` }
                     </IonBreadcrumb>
                 </IonBreadcrumbs>
-                <IonCard>
-                    <IonCardHeader>
-                        <IonCardTitle>
-                            <IonToolbar>
-                            <IonButton color={'tertiary'} slot={'end'} onClick={() => setValues(new WordModel())}>
-                                <IonIcon icon={refreshOutline}></IonIcon>
-                            </IonButton>
-                            </IonToolbar>
-                            
-                            <FormInput 
-                                label={"Name"}
-                                isValid={values.name.trim() !== ''}
-                                validationMessage={"Please enter the word's name."}
-                                onChange={(e: CustomEvent<InputChangeEventDetail>) => setValues({...values, name: e.detail.value ?? ''})}
-                                value={values.name}
-                            />
-                        </IonCardTitle>
-                        <IonCardSubtitle>
-                            <FormInput 
-                                label={"Meaning"}
-                                isValid={values.meaning.trim() !== ''}
-                                validationMessage={"Please enter the word's meaning."}
-                                onChange={(e: CustomEvent<InputChangeEventDetail>) => setValues({...values, meaning: e.detail.value ?? ''})}
-                                value={values.meaning}
-                            />
-                        </IonCardSubtitle>
-                    </IonCardHeader>
-                    <IonCardContent>
-                        <FormChipInput 
-                            label={"Sentences"}
-                            isValid={values.sentences.length !== 0}
-                            validationMessage={"Please enter at least one sentence."}
-                            onSentenceChipUpdate={(data: string[]) => {
-                                setValues({...values, sentences: data})
-                            }}
-                            values={values.sentences}
-                        />
-                        <FormChipInput 
-                            label={"Synonyms"}
-                            isValid={values.synonyms.length !== 0}
-                            validationMessage={"Please enter at least one synonym."}
-                            onSentenceChipUpdate={(data: string[]) => {
-                                setValues({...values, synonyms: data})
-                            }}
-                            values={values.synonyms}
-                        />
-                        <FormChipInput 
-                            label={"Tags"}
-                            onSentenceChipUpdate={(data: string[]) => {
-                                setValues({...values, tags: data})
-                            }}
-                            values={values.tags}
-                        />
-                        <FormChipInput 
-                            label={"Types"}
-                            isValid={values.types.length !== 0}
-                            validationMessage={"Please enter at least one type."}
-                            onSentenceChipUpdate={(data: string[]) => {
-                                setValues({...values, types: data})
-                            }}
-                            values={values.types}
-                        />
-                            <IonButton 
-                                disabled={disabled || status === ApiCallStatus.PROCESSING} 
-                                onClick={() => {
-                                    setStatus(ApiCallStatus.PROCESSING);
-                                    submitWord();
-                                }} 
-                                fill={"solid"} 
-                                size={"large"} 
-                                expand={"block"}>
-                                    {props.data.id ? 'Update ': 'Add '}
-                                    {status === ApiCallStatus.PROCESSING && <IonSpinner name={"dots"} />}
-                            </IonButton>
-                    </IonCardContent>
-                </IonCard>
-                
+                <Formik
+                    onSubmit={submitWord}
+                    initialValues={props.data}
+                    validationSchema={validationSchema}
+                >
+                    {formikProps => <>
+                        <IonCard>
+                            <IonCardHeader>
+                                <IonCardTitle>
+                                    <IonToolbar>
+                                    <IonButton color={'tertiary'} slot={'end'} onClick={() => formikProps.setValues(new WordModel())}>
+                                        <IonIcon icon={refreshOutline}></IonIcon>
+                                    </IonButton>
+                                    </IonToolbar>
+                                </IonCardTitle>
+                            </IonCardHeader>
+                            <IonCardContent>
+                                        <Form>
+                                            <Field 
+                                                as={FormInput}
+                                                placeholder={'Name'}
+                                                name={'name'}
+                                                {...formikProps.getFieldMeta('name')}
+                                            />
+                                            <ErrorMessage
+                                                component={'div'}
+                                                className={'error'}
+                                                name={'name'}
+                                            />   
+                                            <Field 
+                                                as={FormInput}
+                                                placeholder={'Meaning'}
+                                                name={'meaning'}
+                                                {...formikProps.getFieldMeta('meaning')}
+                                            /> 
+                                            <ErrorMessage
+                                                component={'div'}
+                                                className={'error'}
+                                                name={'meaning'}
+                                            /> 
+                                            <Field 
+                                                as={FormChipInput}
+                                                placeholder={'Sentences'}
+                                                name={'sentences'}
+                                                values={formikProps.values.sentences}
+                                                onSentenceChipUpdate={(data: string[]) => {
+                                                    formikProps.setFieldValue('sentences', data)
+                                                }}
+                                                {...formikProps.getFieldMeta('sentences')}
+                                            /> 
+                                            <ErrorMessage
+                                                component={'div'}
+                                                className={'error'}
+                                                name={'sentences'}
+                                            />
+                                            <Field 
+                                                as={FormChipInput}
+                                                placeholder={'Synonyms'}
+                                                name={'synonyms'}
+                                                values={formikProps.values.synonyms}
+                                                onSentenceChipUpdate={(data: string[]) => {
+                                                    formikProps.setFieldValue('synonyms', data)
+                                                }}
+                                                {...formikProps.getFieldMeta('synonyms')}
+                                            /> 
+                                            <ErrorMessage
+                                                component={'div'}
+                                                className={'error'}
+                                                name={'synonyms'}
+                                            />  
+                                            <Field 
+                                                as={FormChipInput}
+                                                placeholder={'Tags'}
+                                                name={'tags'}
+                                                values={formikProps.values.tags}
+                                                onSentenceChipUpdate={(data: string[]) => {
+                                                    formikProps.setFieldValue('tags', data)
+                                                }}
+                                                {...formikProps.getFieldMeta('tags')}
+                                            /> 
+                                            <Field 
+                                                as={FormChipInput}
+                                                placeholder={'Types'}
+                                                name={'types'}
+                                                values={formikProps.values.types}
+                                                onSentenceChipUpdate={(data: string[]) => {
+                                                    formikProps.setFieldValue('types', data)
+                                                }}
+                                                {...formikProps.getFieldMeta('types')}
+                                            /> 
+                                            <ErrorMessage
+                                                component={'div'}
+                                                className={'error'}
+                                                name={'types'}
+                                            />
+                                            <IonButton 
+                                                disabled={!formikProps.dirty || !formikProps.isValid || status === ApiCallStatus.PROCESSING} 
+                                                onClick={() => {
+                                                    setStatus(ApiCallStatus.PROCESSING);
+                                                    submitWord(formikProps.values);
+                                                }} 
+                                                fill={"solid"} 
+                                                size={"large"} 
+                                                expand={"block"}>
+                                                    {props.data.id ? 'Update ': 'Add '}
+                                                    {status === ApiCallStatus.PROCESSING && <IonSpinner name={"dots"} />}
+                                            </IonButton>      
+                                        </Form>
+                            </IonCardContent>
+                        </IonCard>
+                    </>}
+                </Formik>
                 <IonToast
                 isOpen={status === ApiCallStatus.FAIL || status === ApiCallStatus.SUCCESS}
                 color={status === ApiCallStatus.SUCCESS ? 'success' : (status === ApiCallStatus.FAIL ? 'danger': 'dark')}

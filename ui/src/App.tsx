@@ -1,4 +1,4 @@
-import { Redirect, Route, useLocation } from 'react-router-dom';
+import { Redirect, Route, RouteComponentProps, useLocation } from 'react-router-dom';
 import {
   IonApp,
   IonButton,
@@ -125,7 +125,7 @@ const App: React.FC = () => {
                       ? <Route path="/login" component={Login} />
                       : <Route path="/login"><Redirect to="/tab1" /></Route>
                     } */}
-                    <Route path="/register" component={Register} />
+                    <Route path="/register" component={(routerProps: RouteComponentProps) => <Register {...routerProps} />} />
                     <Route path="/login" component={Login} />
                   <Route>
                     <Page404 
