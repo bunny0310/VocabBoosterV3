@@ -57,7 +57,10 @@ interface WordState {
   showPlayFailToast: boolean
 }
 
-interface WordProps extends WordModel, RouteComponentProps {}
+interface WordProps extends WordModel, RouteComponentProps {
+  audio?: HTMLAudioElement
+  audioHandler: (audio?: HTMLAudioElement) => void
+}
 
 export class Word extends React.Component<WordProps, WordState> {
   constructor(props: WordProps) {
@@ -115,9 +118,13 @@ export class Word extends React.Component<WordProps, WordState> {
   };
 
   play = (): void => {
-    const played = this.textToSpeechApiClient.convertTextToSpeech(this.props.name, () => this.setState({
-      showPlayFailToast: true,
-    }))
+    const audio = this.props.audio
+    if(!audio || (audio && (audio.duration <= 0 || audio.paused))) {
+      const newAudio = this.textToSpeechApiClient.convertTextToSpeech(this.props.name, () => this.setState({
+        showPlayFailToast: true,
+      }))
+      this.props.audioHandler(newAudio)
+    }
   }
 
   render(): React.ReactNode {

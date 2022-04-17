@@ -30,6 +30,7 @@ export interface WordsState {
   showSearchModal: boolean;
   status: ApiCallStatus;
   infiniteDisabled: boolean;
+  audio?: HTMLAudioElement;
 }
 export class Words extends React.Component<RouteComponentProps, WordsState> {
   constructor(props: any) {
@@ -118,6 +119,11 @@ export class Words extends React.Component<RouteComponentProps, WordsState> {
     event.detail.complete();
   }
 
+  audioHandler = (audio?: HTMLAudioElement) => {
+    this.setState({audio});
+    audio?.play()
+  }
+
   render(): React.ReactNode {
     const words = this.state.words;
     return (
@@ -145,6 +151,8 @@ export class Words extends React.Component<RouteComponentProps, WordsState> {
                   synonyms={word.synonyms}
                   tags={word.tags}
                   types={word.types}
+                  audioHandler={this.audioHandler}
+                  audio={this.state.audio}
                   {...this.props}
                 ></Word>
               );

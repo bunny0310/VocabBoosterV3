@@ -6,5 +6,6 @@ export interface IWordsApiClient {
     searchWordsNameOnly: (postRequest: SearchWordsApiRequest) => Promise<ApiOutcome<SearchWordResponse[] | undefined>>;
     addWord: (body: WordModel) => Promise<ApiOutcome<string|undefined>>;
     editWord: (body: WordModel) => Promise<ApiOutcome<string|undefined>>;
-    getWord: (id: string) => Promise<ApiOutcome<WordModel | undefined>>
+    getWord: (id: string) => Promise<ApiOutcome<WordModel | undefined>>;
+    //method that takes in type
 }
