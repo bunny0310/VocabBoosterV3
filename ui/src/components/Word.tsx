@@ -194,7 +194,7 @@ export class Word extends React.Component<WordProps, WordState> {
                 }
                 color={"primary"}
                 onClick={() => {
-                  this.state.selectedWordViewOption == WordViewOption.Tags ?
+                  this.state.selectedWordViewOption === WordViewOption.Tags ?
                   this.selectWordViewOption(WordViewOption.None) :
                   this.selectWordViewOption(WordViewOption.Tags)
                 }}
@@ -210,7 +210,7 @@ export class Word extends React.Component<WordProps, WordState> {
                 }
                 color={"primary"}
                 onClick={() => {
-                  this.state.selectedWordViewOption == WordViewOption.Synonyms ?
+                  this.state.selectedWordViewOption === WordViewOption.Synonyms ?
                   this.selectWordViewOption(WordViewOption.None) :
                   this.selectWordViewOption(WordViewOption.Synonyms)
                 }}
@@ -226,7 +226,7 @@ export class Word extends React.Component<WordProps, WordState> {
                 }
                 color={"primary"}
                 onClick={() => {
-                  this.state.selectedWordViewOption == WordViewOption.Types ?
+                  this.state.selectedWordViewOption === WordViewOption.Types ?
                   this.selectWordViewOption(WordViewOption.None) :
                   this.selectWordViewOption(WordViewOption.Types)
                 }}
