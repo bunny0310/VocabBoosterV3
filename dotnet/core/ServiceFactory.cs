@@ -7,21 +7,14 @@ namespace core
 {
     public class ServiceFactory
     {
-        private readonly IOptions<VocabBoosterDatabaseSettings> _vocabBoosterDatabaseSettings;
-
-        public ServiceFactory(
-            IOptions<VocabBoosterDatabaseSettings> vocabBoosterDatabaseSettings)
-        {
-            _vocabBoosterDatabaseSettings = vocabBoosterDatabaseSettings;
-        }
         public IWordsService WordsService()
         {
-            return new WordsService(_vocabBoosterDatabaseSettings);
+            return new WordsService();
         }
 
         public IUserService UserService()
         {
-            return new UserService(_vocabBoosterDatabaseSettings);
+            return new UserService();
         }
 
         public ITokenService TokenService()

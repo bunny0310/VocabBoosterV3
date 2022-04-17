@@ -1,7 +1,8 @@
 import { IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent, InputChangeEventDetail, IonButton, IonSpinner, IonToast } from "@ionic/react";
+import { Formik, Form, Field, ErrorMessage } from "formik";
 import React from "react";
 import { useHistory } from "react-router";
-import { AuthenticationRequest } from "../api_clients/AuthApiClient";
+import { AuthenticationRequest, RegisterRequest } from "../api_clients/AuthApiClient";
 import { _authApi, _messageBus } from "../App";
 import { AddEditWord } from "../pages/AddEditWord";
 import { MessageBus, Messages } from "../services/MessageBus";
@@ -9,6 +10,7 @@ import { ApiCallStatus } from "./AddWordForm";
 import { FormChipInput } from "./FormChipInput";
 import { FormInput } from "./FormInput";
 import { PasswordInput } from "./PasswordInput";
+import * as Yup from "yup"
 
 export interface LoginFormProps {
     data: AuthenticationRequest;
@@ -16,84 +18,95 @@ export interface LoginFormProps {
 
 export const LoginForm = (props: LoginFormProps) => {
     const history = useHistory(); 
-
-    const [values, setValues] = React.useState<AuthenticationRequest>(props.data);
     const [status, setStatus] = React.useState<ApiCallStatus>(ApiCallStatus.NONE);
-    React.useEffect(() => {
-        setValues(props.data);
-    }, [props.data])
+    const loginButtonRef = React.useRef<HTMLIonButtonElement>(null)
 
-    const isFormValid: any = {
-        email: values.email !== '',
-        password: values.password !== '',
-    } 
-
-    let disabled = Object.values(isFormValid).includes(false);
-
-    const login = async (): Promise<void> => {
+    const login = async (values: AuthenticationRequest): Promise<void> => {
         const outcome: string | undefined = await _authApi.login(values);
         outcome == null ? setStatus(ApiCallStatus.FAIL) : setStatus(ApiCallStatus.SUCCESS);
     }
 
     const handleEnterPressed = (event: { keyCode: number; }) => {
-        if(event.keyCode == 13) {
-            setStatus(ApiCallStatus.PROCESSING);
-            login();
+        if(event.keyCode === 13) {
+            loginButtonRef.current?.click()
         }
     }
 
+    const validationSchema = Yup.object().shape({
+        email: Yup.string()
+            .required('Email required.')
+            .email('Incorrect email.'),
+        password: Yup.string()
+            .required('Password required.')
+            .min(5, 'At least 5 characters.')
+    })
+
     return (<>
-                    <IonContent className="center" onKeyUp={handleEnterPressed}>
-                        <IonCard>
-                            <IonCardHeader>
-                                <IonCardTitle style={{"textAlign": "center"}}>
-                                    Login
-                                </IonCardTitle>
-                            </IonCardHeader>
-                            <IonCardContent>
-                                <FormInput 
-                                    label={"Email Address"}
-                                    isValid={values.email.trim() !== ''}
-                                    validationMessage={"Please enter your email address."}
-                                    onChange={(e: CustomEvent<InputChangeEventDetail>) => setValues({...values, email: e.detail.value ?? ''})}
-                                    value={values.email}
-                                />
-                                <PasswordInput 
-                                    label={"Password"}
-                                    isValid={values.password.trim() !== ''}
-                                    validationMessage={"Please enter your password."}
-                                    onChange={(e: CustomEvent<InputChangeEventDetail>) => setValues({...values, password: e.detail.value ?? ''})}
-                                    value={values.password}
-                                />
-                                <IonButton 
-                                    disabled={disabled || status === ApiCallStatus.PROCESSING} 
-                                    onClick={() => {
-                                        setStatus(ApiCallStatus.PROCESSING);
-                                        login();
-                                    }} 
-                                    fill={"solid"} 
-                                    size={"large"} 
-                                    expand={"block"}>
+                <IonContent className="center">
+                    <IonCard>
+                        <IonCardHeader>
+                            <IonCardTitle style={{"textAlign": "center"}}>
+                                Login
+                            </IonCardTitle>
+                        </IonCardHeader>
+                        <IonCardContent onKeyUp={handleEnterPressed}>
+                            <Formik
+                                initialValues={new AuthenticationRequest()}
+                                validationSchema={validationSchema}
+                                onSubmit={login}
+                            >
+                            {formikProps =>
+                                <Form>
+                                    <Field
+                                        as={FormInput}
+                                        name='email'
+                                        placeholder='Email'
+                                        {...formikProps.getFieldMeta('email')} />
+                                    <ErrorMessage
+                                        name='email'
+                                        component='div'
+                                        className='error' />
+                                    <Field
+                                        as={PasswordInput}
+                                        name='password'
+                                        placeholder='Password'
+                                        {...formikProps.getFieldMeta('password')} />
+                                    <ErrorMessage
+                                        name='password'
+                                        component='div'
+                                        className='error' />
+                                    <IonButton
+                                        disabled={!formikProps.dirty || !formikProps.isValid || formikProps.isSubmitting || status === ApiCallStatus.PROCESSING}
+                                        onClick={() => {
+                                            setStatus(ApiCallStatus.PROCESSING);
+                                            login(formikProps.values);
+                                        } }
+                                        fill={"solid"}
+                                        size={"large"}
+                                        expand={"block"}
+                                        ref={loginButtonRef}
+                                    >
                                         LOGIN
                                         {status === ApiCallStatus.PROCESSING && <IonSpinner name={"dots"} />}
-                                </IonButton>
-                            </IonCardContent>
-                        </IonCard>
-                        
-                        <IonToast
-                        isOpen={status === ApiCallStatus.FAIL || status === ApiCallStatus.SUCCESS}
-                        color={status === ApiCallStatus.SUCCESS ? 'success' : (status === ApiCallStatus.FAIL ? 'danger': 'dark')}
-                        onDidDismiss={() => {
-                                if (status === ApiCallStatus.SUCCESS) {
-                                    _messageBus.dispatch<string>(Messages.Login, "");
-                                    history.push('/tab1');
-                                }
-                                setStatus(ApiCallStatus.NONE);
-                            }
+                                    </IonButton>
+                                </Form>}
+                            </Formik>
+                        </IonCardContent>
+                    </IonCard>
+                <IonToast
+                    isOpen={status === ApiCallStatus.FAIL || status === ApiCallStatus.SUCCESS}
+                    color={status === ApiCallStatus.SUCCESS ? 'success' : (status === ApiCallStatus.FAIL ? 'danger' : 'dark')}
+                    onDidDismiss={() => {
+                        if (status === ApiCallStatus.SUCCESS) {
+                            _messageBus.dispatch<string>(Messages.Login, "");
+                            history.push('/tab1');
                         }
-                        message={status === ApiCallStatus.SUCCESS ? `Logged in successfully, redirecting` : 'Sorry cannot log you in at this moment.'}
-                        duration={600}
-                        />
-                    </IonContent>
-    </>)
+                        setStatus(ApiCallStatus.NONE);
+                    } }
+                    message={status === ApiCallStatus.SUCCESS ? `Logged in successfully, redirecting` : 'Sorry cannot log you in at this moment.'}
+                    duration={600} 
+                />
+                </IonContent>
+            </>
+    )
 }
