@@ -10,7 +10,9 @@ namespace core.Models.Data {
         Excerpt,
         Expression,
         Noun,
-        Verb
+        Verb,
+        Metaphor,
+        PhrasalVerb
     }
     public class Word
     {
