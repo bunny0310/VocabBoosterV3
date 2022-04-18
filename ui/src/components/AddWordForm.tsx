@@ -86,9 +86,9 @@ export const AddWordForm = (props: AddWordFormProps) => {
                             </IonCardHeader>
                             <IonCardContent>
                                         <Form>
-                                            <IonItemDivider color={'primary'} >
+                                            <IonItemDivider color={formikProps.errors.name && formikProps.touched.name ? 'danger': 'primary'} >
                                                 <IonLabel>
-                                                    Name
+                                                    Name 
                                                 </IonLabel>
                                             </IonItemDivider>
                                             <Field 
@@ -102,7 +102,7 @@ export const AddWordForm = (props: AddWordFormProps) => {
                                                 className={'error'}
                                                 name={'name'}
                                             />
-                                            <IonItemDivider color={'primary'} >
+                                            <IonItemDivider color={formikProps.errors.meaning && formikProps.touched.meaning ? 'danger': 'primary'} >
                                                 <IonLabel>
                                                     Meaning
                                                 </IonLabel>
@@ -118,7 +118,7 @@ export const AddWordForm = (props: AddWordFormProps) => {
                                                 className={'error'}
                                                 name={'meaning'}
                                             />
-                                            <IonItemDivider color={'primary'} >
+                                            <IonItemDivider color={formikProps.errors.sentences && formikProps.touched.sentences ? 'danger': 'primary'} >
                                                 <IonLabel>
                                                     Sentences
                                                 </IonLabel>
@@ -138,7 +138,7 @@ export const AddWordForm = (props: AddWordFormProps) => {
                                                 className={'error'}
                                                 name={'sentences'}
                                             />
-                                            <IonItemDivider color={'primary'} >
+                                            <IonItemDivider color={formikProps.errors.synonyms && formikProps.touched.synonyms ? 'danger': 'primary'} >
                                                 <IonLabel>
                                                     Synonyms
                                                 </IonLabel>
@@ -158,7 +158,7 @@ export const AddWordForm = (props: AddWordFormProps) => {
                                                 className={'error'}
                                                 name={'synonyms'}
                                             />
-                                            <IonItemDivider color={'primary'} >
+                                            <IonItemDivider color={formikProps.errors.tags && formikProps.touched.tags ? 'danger': 'primary'} >
                                                 <IonLabel>
                                                     Tags
                                                 </IonLabel>
@@ -173,17 +173,7 @@ export const AddWordForm = (props: AddWordFormProps) => {
                                                 }}
                                                 {...formikProps.getFieldMeta('tags')}
                                             /> 
-                                            {/* <Field 
-                                                as={FormChipInput}
-                                                placeholder={'Types'}
-                                                name={'types'}
-                                                values={formikProps.values.types}
-                                                onSentenceChipUpdate={(data: string[]) => {
-                                                    formikProps.setFieldValue('types', data)
-                                                }}
-                                                {...formikProps.getFieldMeta('types')}
-                                            />  */}
-                                            <IonItemDivider color={'primary'} >
+                                            <IonItemDivider color={formikProps.errors.types && formikProps.touched.types ? 'danger': 'primary'} >
                                                 <IonLabel>
                                                     Types
                                                 </IonLabel>
@@ -198,21 +188,24 @@ export const AddWordForm = (props: AddWordFormProps) => {
                                                                 <IonItem key={type}>
                                                                     <IonLabel>{WordTypeDescriptions[type]}</IonLabel>
                                                                     <IonCheckbox slot="end" 
-                                                                        value={type} 
+                                                                        value={type}
+                                                                        name='types' 
                                                                         checked={formikProps.values.types.includes(type)}
                                                                         onIonChange={(e) => {
-                                                                            if (e.detail.checked && !formikProps.values.types.includes(type)) {
-                                                                                formikProps.setFieldValue('types', [...formikProps.values.types, type])
-                                                                            }
-                                                                            else if (!e.detail.checked) {
-                                                                                const newTypes = [...formikProps.values.types]
-                                                                                const idx = newTypes.indexOf(type)
-                                                                                if (idx !== -1) {
-                                                                                    newTypes.splice(idx, 1)
-                                                                                    formikProps.setFieldValue('types', newTypes)
+                                                                                if (e.detail.checked && !formikProps.values.types.includes(type)) {
+                                                                                    formikProps.setFieldValue('types', [...formikProps.values.types, type])
                                                                                 }
+                                                                                else if (!e.detail.checked) {
+                                                                                    const newTypes = [...formikProps.values.types]
+                                                                                    const idx = newTypes.indexOf(type)
+                                                                                    if (idx !== -1) {
+                                                                                        newTypes.splice(idx, 1)
+                                                                                        formikProps.setFieldValue('types', newTypes)
+                                                                                    }
+                                                                                }
+                                                                                formikProps.setTouched({...formikProps.touched, types: true });
                                                                             }
-                                                                        }} 
+                                                                        } 
                                                                     />
                                                                 </IonItem>)
                                                             })
