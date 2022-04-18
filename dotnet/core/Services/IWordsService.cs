@@ -12,5 +12,7 @@ namespace core.Services
 
         public Task<Word> AddWord(Word request);
         public Task<ExecutionOutcome<Word>> EditWord(Word request);
+
+        public Task<ExecutionOutcome<List<Word>>> GetWordsRange(WordType type, DateTime startDate, DateTime endDate);
     }
 }

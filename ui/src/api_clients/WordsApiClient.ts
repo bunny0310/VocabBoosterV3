@@ -92,6 +92,15 @@ export class WordsApiClient extends BaseApiClient implements IWordsApiClient{
             return outcome;
     }
 
+    getWordsRange = async (type: WordType, startDate: Date, endDate: Date): Promise<ApiOutcome<WordModel[] | undefined>> => {
+        let url = `${baseUrl}/range`
+        url += `?type=${type}`
+        url += `&startDate=${encodeURIComponent(startDate.toISOString())}`
+        url += `&endDate=${encodeURIComponent(endDate.toISOString())}`
+        const outcome = await this.getApi<WordModel[] | undefined>(url)
+        return outcome
+    }
+
     getWord = async (id: string): Promise<ApiOutcome<WordModel | undefined>> => {
         if (!id || id.trim() === '') {
             return {

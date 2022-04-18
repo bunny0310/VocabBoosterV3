@@ -190,5 +190,19 @@ namespace core.Services
             }
             return filter;
         }
+
+        public async Task<ExecutionOutcome<List<Word>>> GetWordsRange(WordType type, DateTime startDate, DateTime endDate)
+        {
+            try 
+            {
+                var words = await _wordsCollection.Find(word => word.Types.Contains(type) && word.UpdatedAt >= startDate && word.UpdatedAt <= endDate)
+                    .ToListAsync();
+                return new ExecutionOutcome<List<Word>>() { IsSuccessful = true, Data = words };
+            }
+            catch (Exception ex)
+            {
+                return new ExecutionOutcome<List<Word>>() { IsSuccessful = false, Exception = ex };
+            }
+        }
     }
 }
