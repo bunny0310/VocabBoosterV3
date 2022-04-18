@@ -45,8 +45,9 @@ namespace core.Models.Data {
         [BsonElement("sentences")]
         public List<string> Sentences {get; set;}
 
+        [BsonRepresentation(BsonType.Int32)]
         [BsonElement("types")]
-        public List<string> Types {get; set;}
+        public List<WordType> Types {get; set;}
 
         [BsonElement("__v")]
         public int? V { get; set; }

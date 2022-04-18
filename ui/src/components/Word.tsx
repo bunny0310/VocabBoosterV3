@@ -1,5 +1,5 @@
 import React, { MouseEventHandler, ReactDOM } from "react";
-import { WordModel } from "../api_clients/WordsApiClient";
+import { WordModel, WordTypeDescriptions } from "../api_clients/WordsApiClient";
 import {
   IonButton,
   IonButtons,
@@ -88,7 +88,7 @@ export class Word extends React.Component<WordProps, WordState> {
         informationArr = this.props.tags;
         break;
       case WordViewOption.Types:
-        informationArr = this.props.types;
+        informationArr = this.props.types.map(type => WordTypeDescriptions[type]);
         break;
       default:
         informationArr = [];

@@ -12,6 +12,28 @@ import { BaseApiClient } from "./BaseApiClient";
 
 const baseUrl = `${process.env.NODE_ENV === 'production' ? 'https://vocabbooster-words.herokuapp.com/Words' : 'http://localhost:5001/Words'}`;
 
+export enum WordType {
+    Adverb,
+    Adjective,
+    Excerpt,
+    Expression,
+    Noun,
+    Verb,
+    Metaphor,
+    PhrasalVerb
+}
+
+export const WordTypeDescriptions = {
+    [WordType.Adverb]: "Adverb",
+    [WordType.Adjective]: "Adjective",
+    [WordType.Excerpt]: "Excerpt",
+    [WordType.Expression]: "Expression",
+    [WordType.Noun]: "Noun",
+    [WordType.Verb]: "Verb",
+    [WordType.Metaphor]: "Metaphor",
+    [WordType.PhrasalVerb]: "Phrasal Verb",
+}
+
 export class WordModel {
     id?: string = undefined
     name: string = "";
@@ -19,7 +41,7 @@ export class WordModel {
     sentences: string[] = [];
     synonyms: string[] = [];
     tags: string[] = [];
-    types: string[] = [];
+    types: WordType[] = [];
 } 
 
 export interface SearchWordsQueryModel {
