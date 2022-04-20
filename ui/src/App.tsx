@@ -53,6 +53,7 @@ import { Storage } from '@capacitor/storage';
 import { jwtKeyName } from './api_clients/AuthApiClient';
 import { Register } from './pages/Register';
 import { RedirectComponent } from './components/RedirectComponent';
+import { DataAnalytics } from './pages/DataAnalytics';
 
 setupIonicReact();
 
@@ -110,7 +111,19 @@ const App: React.FC = () => {
                           <Redirect to="/login"></Redirect>
                       </Route>
                     }
-                    <Route path="/tab3" />
+                    {
+                      auth 
+                      ? <Route exact path="/tab3" component={DataAnalytics} />
+                      : <Route exact path="/tab3">
+                          <Redirect to="/login"></Redirect>
+                      </Route>
+                    }                    {
+                      auth 
+                      ? <Route exact path="/tab1" component={Words} />
+                      : <Route exact path="/tab1">
+                          <Redirect to="/login"></Redirect>
+                      </Route>
+                    }
                     {
                       auth 
                       ? <Route exact path="/editword/:id" component={AddEditWordFormHoc} />
