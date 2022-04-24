@@ -42,6 +42,8 @@ export class WordModel {
     synonyms: string[] = [];
     tags: string[] = [];
     types: WordType[] = [];
+    createdAt?: Date | string;
+    updatedAt?: Date | string;
 } 
 
 export interface SearchWordsQueryModel {

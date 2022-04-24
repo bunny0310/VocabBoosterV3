@@ -111,13 +111,15 @@ const App: React.FC = () => {
                           <Redirect to="/login"></Redirect>
                       </Route>
                     }
-                    {
+                    <Route exact path="/tab3" component={DataAnalytics} />
+                    {/* {
                       auth 
                       ? <Route exact path="/tab3" component={DataAnalytics} />
                       : <Route exact path="/tab3">
                           <Redirect to="/login"></Redirect>
                       </Route>
-                    }                    {
+                    }                     */}
+                    {
                       auth 
                       ? <Route exact path="/tab1" component={Words} />
                       : <Route exact path="/tab1">
