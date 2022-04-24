@@ -1,4 +1,4 @@
-import React, { MouseEventHandler, ReactDOM } from "react";
+import React, { MouseEventHandler, ReactDOM, useState, useEffect } from "react";
 import { WordModel } from "../api_clients/WordsApiClient";
 import {
   IonButton,
@@ -114,6 +114,7 @@ export class Word extends React.Component<WordProps, WordState> {
       .join(". ");
   };
 
+  // TODO Prevent audio from playing if audio is already playing
   play = (): void => {
     const played = this.textToSpeechApiClient.convertTextToSpeech(this.props.name, () => this.setState({
       showPlayFailToast: true,
@@ -192,64 +193,48 @@ export class Word extends React.Component<WordProps, WordState> {
                   this.state.selectedWordViewOption !== WordViewOption.Tags
                 }
                 color={"primary"}
+                onClick={() => {
+                  this.state.selectedWordViewOption === WordViewOption.Tags ?
+                  this.selectWordViewOption(WordViewOption.None) :
+                  this.selectWordViewOption(WordViewOption.Tags)
+                }}
               >
                 <IonIcon icon={pricetag} />
-                <IonLabel
-                  onClick={() => this.selectWordViewOption(WordViewOption.Tags)}
-                >
+                <IonLabel>
                   Tags
                 </IonLabel>
-                <IonIcon
-                  style={{
-                    display: styleOptionSelected(WordViewOption.Tags),
-                  }}
-                  icon={closeCircleOutline}
-                  onClick={() => this.selectWordViewOption(WordViewOption.None)}
-                />
               </IonChip>
               <IonChip
                 outline={
                   this.state.selectedWordViewOption !== WordViewOption.Synonyms
                 }
                 color={"primary"}
+                onClick={() => {
+                  this.state.selectedWordViewOption === WordViewOption.Synonyms ?
+                  this.selectWordViewOption(WordViewOption.None) :
+                  this.selectWordViewOption(WordViewOption.Synonyms)
+                }}
               >
                 <IonIcon icon={repeat} color={"primary"} />
-                <IonLabel
-                  onClick={() =>
-                    this.selectWordViewOption(WordViewOption.Synonyms)
-                  }
-                >
+                <IonLabel>
                   Synonyms
                 </IonLabel>
-                <IonIcon
-                  icon={closeCircleOutline}
-                  style={{
-                    display: styleOptionSelected(WordViewOption.Synonyms),
-                  }}
-                  onClick={() => this.selectWordViewOption(WordViewOption.None)}
-                />
               </IonChip>
               <IonChip
                 outline={
                   this.state.selectedWordViewOption !== WordViewOption.Types
                 }
                 color={"primary"}
+                onClick={() => {
+                  this.state.selectedWordViewOption === WordViewOption.Types ?
+                  this.selectWordViewOption(WordViewOption.None) :
+                  this.selectWordViewOption(WordViewOption.Types)
+                }}
               >
                 <IonIcon icon={layers} color={"primary"} />
-                <IonLabel
-                  onClick={() =>
-                    this.selectWordViewOption(WordViewOption.Types)
-                  }
-                >
+                <IonLabel>
                   Types
                 </IonLabel>
-                <IonIcon
-                  icon={closeCircleOutline}
-                  onClick={() => this.selectWordViewOption(WordViewOption.None)}
-                  style={{
-                    display: styleOptionSelected(WordViewOption.Types),
-                  }}
-                />
               </IonChip>
             </IonCardTitle>
           </IonCardHeader>
