@@ -21,7 +21,7 @@ namespace core.Utils
 				Sentences = Faker.Lorem.Sentences(3).ToList(),
 				Synonyms = Faker.Lorem.Words(3).ToList(),
 				Tags = Faker.Lorem.Words(3).ToList(),
-				Types = new List<string>() { System.Enum.GetNames(typeof(WordType)).ToList()[_random.Next(6)] }
+				Types = new List<WordType>() { (WordType)System.Enum.GetValues(typeof(WordType)).GetValue(_random.Next(6)) }
 			};
 			return word;
         }

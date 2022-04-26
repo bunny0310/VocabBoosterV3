@@ -18,12 +18,20 @@ namespace words.Controllers
         {
             this.serviceFactory = serviceFactory;
         }
+
         [HttpGet]
         [Authorize]
         public async Task<List<Word>> Get([FromQuery] SearchWordsApiRequest requestBody, int limit = 5, int offset = 0)
         {
-            Console.WriteLine(ConfigurationVariables.JwtIssuer);
             return await serviceFactory.WordsService().GetWords(limit, offset, requestBody);
+        }
+
+        [HttpGet("range")]
+        [Authorize]
+        public async Task<IActionResult> GetRange([FromQuery] WordRangeRequest requestBody)
+        {
+            var outcome = await serviceFactory.WordsService().GetWordsRange(requestBody.Type, requestBody.StartDateParsed.Value, requestBody.EndDateParsed.Value);
+            return OkOrError(outcome);
         }
 
         [HttpGet("{id}")]

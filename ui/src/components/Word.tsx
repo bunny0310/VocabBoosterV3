@@ -1,5 +1,5 @@
 import React, { MouseEventHandler, ReactDOM, useState, useEffect } from "react";
-import { WordModel } from "../api_clients/WordsApiClient";
+import { WordModel, WordTypeDescriptions } from "../api_clients/WordsApiClient";
 import {
   IonButton,
   IonButtons,
@@ -57,7 +57,10 @@ interface WordState {
   showPlayFailToast: boolean
 }
 
-interface WordProps extends WordModel, RouteComponentProps {}
+interface WordProps extends WordModel, RouteComponentProps {
+  audio?: HTMLAudioElement
+  audioHandler: (audio?: HTMLAudioElement) => void
+}
 
 export class Word extends React.Component<WordProps, WordState> {
   constructor(props: WordProps) {
@@ -85,7 +88,7 @@ export class Word extends React.Component<WordProps, WordState> {
         informationArr = this.props.tags;
         break;
       case WordViewOption.Types:
-        informationArr = this.props.types;
+        informationArr = this.props.types.map(type => WordTypeDescriptions[type]);
         break;
       default:
         informationArr = [];
@@ -116,9 +119,13 @@ export class Word extends React.Component<WordProps, WordState> {
 
   // TODO Prevent audio from playing if audio is already playing
   play = (): void => {
-    const played = this.textToSpeechApiClient.convertTextToSpeech(this.props.name, () => this.setState({
-      showPlayFailToast: true,
-    }))
+    const audio = this.props.audio
+    if(!audio || (audio && (audio.duration <= 0 || audio.paused))) {
+      const newAudio = this.textToSpeechApiClient.convertTextToSpeech(this.props.name, () => this.setState({
+        showPlayFailToast: true,
+      }))
+      this.props.audioHandler(newAudio)
+    }
   }
 
   render(): React.ReactNode {

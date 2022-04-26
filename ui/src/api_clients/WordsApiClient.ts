@@ -12,6 +12,28 @@ import { BaseApiClient } from "./BaseApiClient";
 
 const baseUrl = `${process.env.NODE_ENV === 'production' ? 'https://vocabbooster-words.herokuapp.com/Words' : 'http://localhost:5001/Words'}`;
 
+export enum WordType {
+    Adverb,
+    Adjective,
+    Excerpt,
+    Expression,
+    Noun,
+    Verb,
+    Metaphor,
+    PhrasalVerb
+}
+
+export const WordTypeDescriptions = {
+    [WordType.Adverb]: "Adverb",
+    [WordType.Adjective]: "Adjective",
+    [WordType.Excerpt]: "Excerpt",
+    [WordType.Expression]: "Expression",
+    [WordType.Noun]: "Noun",
+    [WordType.Verb]: "Verb",
+    [WordType.Metaphor]: "Metaphor",
+    [WordType.PhrasalVerb]: "Phrasal Verb",
+}
+
 export class WordModel {
     id?: string = undefined
     name: string = "";
@@ -19,7 +41,9 @@ export class WordModel {
     sentences: string[] = [];
     synonyms: string[] = [];
     tags: string[] = [];
-    types: string[] = [];
+    types: WordType[] = [];
+    createdAt?: Date | string;
+    updatedAt?: Date | string;
 } 
 
 export interface SearchWordsQueryModel {
@@ -68,6 +92,15 @@ export class WordsApiClient extends BaseApiClient implements IWordsApiClient{
             }            
             const outcome = await this.getApi<WordModel[] | undefined>(this.generateWordsQuery(queryModel));
             return outcome;
+    }
+
+    getWordsRange = async (type: WordType, startDate: Date, endDate: Date): Promise<ApiOutcome<WordModel[] | undefined>> => {
+        let url = `${baseUrl}/range`
+        url += `?type=${type}`
+        url += `&startDate=${encodeURIComponent(startDate.toISOString())}`
+        url += `&endDate=${encodeURIComponent(endDate.toISOString())}`
+        const outcome = await this.getApi<WordModel[] | undefined>(url)
+        return outcome
     }
 
     getWord = async (id: string): Promise<ApiOutcome<WordModel | undefined>> => {

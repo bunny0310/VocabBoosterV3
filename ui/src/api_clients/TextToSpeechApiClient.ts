@@ -9,7 +9,7 @@ const url = `http://api.voicerss.org/?key=${process.env.REACT_APP_SPEECHTOTEXTKE
 
 @injectable()
 export class TextToSpeechApiClient extends BaseApiClient {
-    convertTextToSpeech = (text: string, handler?: () => void): void => {
+    convertTextToSpeech = (text: string, handler?: () => void): HTMLAudioElement | undefined => {
             if (isPlatform('mobile')) {
                 axios({
                     url: `${url}&src=${text}`,
@@ -30,15 +30,16 @@ export class TextToSpeechApiClient extends BaseApiClient {
                           )
                           .then(() => console.log(`File written in ${File.dataDirectory}/sound.mp3`));
                     })
-                return;
+                return undefined;
             }
             const source = new Audio(`http://api.voicerss.org/?key=${process.env.REACT_APP_SPEECHTOTEXTKEY}&hl=en-us&src=${text}`);
             source.addEventListener("error", function(e) { 
                 console.log("Logging playback error: " + e.error);
                 handler && handler();
             });
-            if (!(source.duration > 0 && !source.paused)) {
-                source.play()
-            }
+            // if (!(source.duration > 0 && !source.paused)) {
+            //     source.play()
+            // }
+            return source
     }
 }

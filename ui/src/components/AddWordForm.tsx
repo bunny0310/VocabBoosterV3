@@ -1,9 +1,9 @@
-import { InputChangeEventDetail, IonBreadcrumb, IonBreadcrumbs, IonButton, IonButtons, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonContent, IonIcon, IonInput, IonItem, IonLabel, IonList, IonNote, IonSpinner, IonToast, IonToggle, IonToolbar } from "@ionic/react"
-import { ErrorMessage, Field, Form, Formik } from "formik";
+import { InputChangeEventDetail, IonBreadcrumb, IonBreadcrumbs, IonButton, IonButtons, IonCard, IonCardContent, IonCardHeader, IonCardSubtitle, IonCardTitle, IonCheckbox, IonContent, IonIcon, IonInput, IonItem, IonItemDivider, IonLabel, IonList, IonNote, IonSpinner, IonToast, IonToggle, IonToolbar } from "@ionic/react"
+import { ErrorMessage, Field, FieldArray, Form, Formik } from "formik";
 import { refreshOutline } from "ionicons/icons";
 import React from "react";
 import { useHistory } from "react-router";
-import { WordModel } from "../api_clients/WordsApiClient";
+import { WordModel, WordType, WordTypeDescriptions } from "../api_clients/WordsApiClient";
 import { _messageBus, _wordsApi } from "../App";
 import { Messages } from "../services/MessageBus";
 import { FormChipInput } from "./FormChipInput";
@@ -47,7 +47,7 @@ export const AddWordForm = (props: AddWordFormProps) => {
             .of(Yup.string())
             .min(1, 'At least one synonym required'),
         types: Yup.array()
-            .of(Yup.string())
+            .of(Yup.number())
             .min(1, 'At least one type required')
     })
 
@@ -78,7 +78,7 @@ export const AddWordForm = (props: AddWordFormProps) => {
                             <IonCardHeader>
                                 <IonCardTitle>
                                     <IonToolbar>
-                                    <IonButton color={'tertiary'} slot={'end'} onClick={() => formikProps.setValues(new WordModel())}>
+                                    <IonButton color={'primary'} slot={'end'} onClick={() => formikProps.setValues(new WordModel())}>
                                         <IonIcon icon={refreshOutline}></IonIcon>
                                     </IonButton>
                                     </IonToolbar>
@@ -86,6 +86,11 @@ export const AddWordForm = (props: AddWordFormProps) => {
                             </IonCardHeader>
                             <IonCardContent>
                                         <Form>
+                                            <IonItemDivider color={formikProps.errors.name && formikProps.touched.name ? 'danger': 'primary'} >
+                                                <IonLabel>
+                                                    Name 
+                                                </IonLabel>
+                                            </IonItemDivider>
                                             <Field 
                                                 as={FormInput}
                                                 placeholder={'Name'}
@@ -96,7 +101,12 @@ export const AddWordForm = (props: AddWordFormProps) => {
                                                 component={'div'}
                                                 className={'error'}
                                                 name={'name'}
-                                            />   
+                                            />
+                                            <IonItemDivider color={formikProps.errors.meaning && formikProps.touched.meaning ? 'danger': 'primary'} >
+                                                <IonLabel>
+                                                    Meaning
+                                                </IonLabel>
+                                            </IonItemDivider>
                                             <Field 
                                                 as={FormInput}
                                                 placeholder={'Meaning'}
@@ -107,10 +117,15 @@ export const AddWordForm = (props: AddWordFormProps) => {
                                                 component={'div'}
                                                 className={'error'}
                                                 name={'meaning'}
-                                            /> 
+                                            />
+                                            <IonItemDivider color={formikProps.errors.sentences && formikProps.touched.sentences ? 'danger': 'primary'} >
+                                                <IonLabel>
+                                                    Sentences
+                                                </IonLabel>
+                                            </IonItemDivider>
                                             <Field 
                                                 as={FormChipInput}
-                                                placeholder={'Sentences'}
+                                                placeholder={'Add sentences'}
                                                 name={'sentences'}
                                                 values={formikProps.values.sentences}
                                                 onSentenceChipUpdate={(data: string[]) => {
@@ -123,9 +138,14 @@ export const AddWordForm = (props: AddWordFormProps) => {
                                                 className={'error'}
                                                 name={'sentences'}
                                             />
+                                            <IonItemDivider color={formikProps.errors.synonyms && formikProps.touched.synonyms ? 'danger': 'primary'} >
+                                                <IonLabel>
+                                                    Synonyms
+                                                </IonLabel>
+                                            </IonItemDivider>
                                             <Field 
                                                 as={FormChipInput}
-                                                placeholder={'Synonyms'}
+                                                placeholder={'Add synonyms'}
                                                 name={'synonyms'}
                                                 values={formikProps.values.synonyms}
                                                 onSentenceChipUpdate={(data: string[]) => {
@@ -137,10 +157,15 @@ export const AddWordForm = (props: AddWordFormProps) => {
                                                 component={'div'}
                                                 className={'error'}
                                                 name={'synonyms'}
-                                            />  
+                                            />
+                                            <IonItemDivider color={formikProps.errors.tags && formikProps.touched.tags ? 'danger': 'primary'} >
+                                                <IonLabel>
+                                                    Tags
+                                                </IonLabel>
+                                            </IonItemDivider> 
                                             <Field 
                                                 as={FormChipInput}
-                                                placeholder={'Tags'}
+                                                placeholder={'Add tags'}
                                                 name={'tags'}
                                                 values={formikProps.values.tags}
                                                 onSentenceChipUpdate={(data: string[]) => {
@@ -148,16 +173,45 @@ export const AddWordForm = (props: AddWordFormProps) => {
                                                 }}
                                                 {...formikProps.getFieldMeta('tags')}
                                             /> 
-                                            <Field 
-                                                as={FormChipInput}
-                                                placeholder={'Types'}
-                                                name={'types'}
-                                                values={formikProps.values.types}
-                                                onSentenceChipUpdate={(data: string[]) => {
-                                                    formikProps.setFieldValue('types', data)
-                                                }}
-                                                {...formikProps.getFieldMeta('types')}
-                                            /> 
+                                            <IonItemDivider color={formikProps.errors.types && formikProps.touched.types ? 'danger': 'primary'} >
+                                                <IonLabel>
+                                                    Types
+                                                </IonLabel>
+                                            </IonItemDivider> 
+                                            <Field
+                                                as={(fieldProps: any) => <>
+                                                    {
+                                                        Object.keys(WordTypeDescriptions)
+                                                            .map((key) => {
+                                                                const type = (parseInt(key) as WordType)
+                                                                return (
+                                                                <IonItem key={type}>
+                                                                    <IonLabel>{WordTypeDescriptions[type]}</IonLabel>
+                                                                    <IonCheckbox slot="end" 
+                                                                        value={type}
+                                                                        name='types' 
+                                                                        checked={formikProps.values.types.includes(type)}
+                                                                        onIonChange={(e) => {
+                                                                                if (e.detail.checked && !formikProps.values.types.includes(type)) {
+                                                                                    formikProps.setFieldValue('types', [...formikProps.values.types, type])
+                                                                                }
+                                                                                else if (!e.detail.checked) {
+                                                                                    const newTypes = [...formikProps.values.types]
+                                                                                    const idx = newTypes.indexOf(type)
+                                                                                    if (idx !== -1) {
+                                                                                        newTypes.splice(idx, 1)
+                                                                                        formikProps.setFieldValue('types', newTypes)
+                                                                                    }
+                                                                                }
+                                                                                formikProps.setTouched({...formikProps.touched, types: true });
+                                                                            }
+                                                                        } 
+                                                                    />
+                                                                </IonItem>)
+                                                            })
+                                                    }
+                                                </>}
+                                            />
                                             <ErrorMessage
                                                 component={'div'}
                                                 className={'error'}
