@@ -69,7 +69,7 @@ for (const word of words) {
                 return -1;
         }
     });
-    const morphedWord = Object.assign(Object.assign({}, word), { types: mappedTypes });
+    const morphedWord = Object.assign(Object.assign({}, word), { types: mappedTypes, user: { "$oid": "5fef467bcb823fa32b020478" } });
     morphedWords.push(morphedWord);
 }
 let bigString = '';

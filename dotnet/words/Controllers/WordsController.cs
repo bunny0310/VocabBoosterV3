@@ -5,6 +5,7 @@ using core.Models.Response;
 using core.Controllers;
 using Microsoft.AspNetCore.Authorization;
 using core;
+using core.Services;
 
 namespace words.Controllers
 {
@@ -13,17 +14,20 @@ namespace words.Controllers
     public class WordsController : BaseController
     {
         private readonly ServiceFactory serviceFactory;
+        private readonly IIdentityService _identityService;
 
-        public WordsController(ServiceFactory serviceFactory)
+        public WordsController(ServiceFactory serviceFactory, IIdentityService identityService)
         {
             this.serviceFactory = serviceFactory;
+            this._identityService = identityService;
         }
 
         [HttpGet]
         [Authorize]
-        public async Task<List<Word>> Get([FromQuery] SearchWordsApiRequest requestBody, int limit = 5, int offset = 0)
+        public async Task<IActionResult> Get([FromQuery] SearchWordsApiRequest requestBody, int limit = 5, int offset = 0)
         {
-            return await serviceFactory.WordsService().GetWords(limit, offset, requestBody);
+            var outcome = await serviceFactory.WordsService().GetWords(limit, offset, requestBody);
+            return OkOrError(outcome);
         }
 
         [HttpGet("range")]
@@ -45,16 +49,16 @@ namespace words.Controllers
         [HttpPost]
         [Authorize]
         [Route("SearchWordsNameOnly")]
-        public async Task<List<SearchWordResponse>> SearchWordsNameOnly([FromBody] SearchWordsApiRequest requestBody)
+        public async Task<IActionResult> SearchWordsNameOnly([FromBody] SearchWordsApiRequest requestBody)
         {
-            var words = await serviceFactory.WordsService().SearchWordsNameOnly(requestBody);
-            return words;
+            var outcome = await serviceFactory.WordsService().SearchWordsNameOnly(requestBody);
+            return OkOrError(outcome);
         }
 
         [HttpPost]
-        public async Task<Word> PostWord([FromBody] Word body) {
-            var word = await serviceFactory.WordsService().AddWord(body);
-            return word;
+        public async Task<IActionResult> PostWord([FromBody] Word body) {
+            var outcome = await serviceFactory.WordsService().AddWord(body);
+            return OkOrError(outcome);
         } 
 
         [HttpPut]

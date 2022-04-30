@@ -4,29 +4,24 @@ using core.Models.Response;
 using core.Models.Request;
 using Microsoft.Extensions.Options;
 using core.Models.Data;
-using core;
+using core.Repositories;
+using System.Linq.Expressions;
 
 namespace core.Services
 {
     public class UserService : IUserService
     {
-        private readonly IMongoCollection<User> _usersCollection;
-        public UserService()
+        private readonly IUsersRepository _repository;
+        public UserService(IUsersRepository repository)
         {
-            var mongoClient = new MongoClient(
-                ConfigurationVariables.MongoConnectionString);
-
-            var mongoDatabase = mongoClient.GetDatabase(
-                ConfigurationVariables.MongoDb);
-
-            _usersCollection = mongoDatabase.GetCollection<User>(
-                "users");
+            _repository = repository;
         }
 
         public async Task<ExecutionOutcome<UserDTO>> AuthenticateUser(AuthenticationRequest request) {
             try {
-                var filter = Builders<User>.Filter.Where(u => u.Email.Equals(request.Email) && u.Password.Equals(request.Password));
-                var user = await _usersCollection.Find(filter).FirstOrDefaultAsync();
+                Expression<Func<User, bool>> expression = u => u.Email.Equals(request.Email) && u.Password.Equals(request.Password);
+                var user = await _repository.GetUser(expression);
+
                 if (user == null) {
                     throw new UnauthorizedAccessException("Invalid user credentials");
                 }
@@ -43,11 +38,9 @@ namespace core.Services
         {
             try
             {
-                var isUserPresent =  _usersCollection
-                    .Find(u => u.Email.Equals(request.Email))
-                    .FirstOrDefault() != null;
-                
-                if (isUserPresent)
+                var existentUser = await _repository.GetUserByEmail(request.Email);
+
+                if (existentUser != null)
                 {
                     throw new BadHttpRequestException("User already exists!");
                 }
@@ -57,17 +50,36 @@ namespace core.Services
                     FirstName = request.FirstName,
                     LastName = request.LastName,
                     Email = request.Email,
-                    Password = request.Password
+                    Password = request.Password,
+                    CreatedAt = DateTime.UtcNow
                 };
 
-                await _usersCollection
-                    .InsertOneAsync(user);
+                await _repository
+                    .AddUser(user);
 
-                return new ExecutionOutcome<UserDTO>(){ Data = new UserDTO() {Email = user.Email}, IsSuccessful = true };
+                return new ExecutionOutcome<UserDTO>(){ Data = new UserDTO() { Email = user.Email }, IsSuccessful = true };
             }
             catch (Exception ex)
             {
                 return new ExecutionOutcome<UserDTO>(){ IsSuccessful = false, Exception = ex };
+            }
+        }
+
+        public async Task<ExecutionOutcome<User>> GetUserByEmail(string email)
+        {
+            try
+            {
+                var user = await _repository.GetUserByEmail(email);
+
+                if (user == null)
+                {
+                    throw new BadHttpRequestException("User Not Found!");
+                }
+                return new ExecutionOutcome<User>() { Data = user, IsSuccessful = true };
+            }
+            catch(Exception ex)
+            {
+                return new ExecutionOutcome<User>() { Exception = ex, IsSuccessful = false };
             }
         }
     }
