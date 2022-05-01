@@ -84,12 +84,12 @@ export abstract class BaseApiClient {
         }
     }
 
-    deleteApi = async <T>(url: string) : Promise<ApiOutcome<Response>> => {
+    deleteApi = async <T>(url: string) : Promise<ApiOutcome<T>> => {
         try {
             const options = await this.getRequestOptions();
-            const result = await axios.delete<Response>(url, options);
+            const result = await axios.delete<T>(url, options);
             const data = result.data;
-            const outcome: ApiOutcome<Response> = {
+            const outcome: ApiOutcome<T> = {
                 code: await result.status,
                 data,
                 isSuccessful: true
@@ -97,7 +97,7 @@ export abstract class BaseApiClient {
             return outcome;
         }
         catch (error: any) {
-            const outcome: ApiOutcome<Response> = {
+            const outcome: ApiOutcome<T> = {
                 code: await error?.response?.status,
                 isSuccessful: false
             };

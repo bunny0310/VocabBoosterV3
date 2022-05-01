@@ -92,8 +92,7 @@ namespace core.Services
 
                 return new ExecutionOutcome<bool>() { Data = true, IsSuccessful = true };
             } catch (Exception ex) {
-
-                return new ExecutionOutcome<bool>() { Data = false, IsSuccessful = true };
+                return new ExecutionOutcome<bool>() { Exception = ex, IsSuccessful = false };
             }
         }
         public async Task<ExecutionOutcome<List<SearchWordResponse>>> SearchWordsNameOnly(SearchWordsApiRequest requestBody)
