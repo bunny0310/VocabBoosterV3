@@ -2,13 +2,17 @@ FROM node:14.1-alpine AS builder
 
 WORKDIR /app
 
+ARG REACT_APP_SPEECHTOTEXTKEY
+
+ENV REACT_APP_SPEECHTOTEXTKEY ${REACT_APP_SPEECHTOTEXTKEY}
+
 COPY package.json package-lock.json ./
 RUN npm install --silent
 
 ENV PATH="./node_modules/.bin:$PATH"
 
 COPY . ./
-RUN REACT_APP_ENV=qa npm run build
+RUN REACT_APP_ENV=qa REACT_APP_SPEECHTOTEXTKEY=${REACT_APP_SPEECHTOTEXTKEY} npm run build
 
 FROM nginx:1.17-alpine
 RUN apk --no-cache add curl
