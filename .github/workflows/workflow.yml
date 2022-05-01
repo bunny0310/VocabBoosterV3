@@ -45,3 +45,18 @@ jobs:
       env:
         HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
       run: heroku container:release web -a qa-vb-words
+
+    - uses: docker/build-push-action@v2 
+      name: Build and push UI
+      env:
+        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+      with:
+        context: ./ui/
+        file: ./ui/Dockerfile.prod
+        push: true
+        tags: registry.heroku.com/qa-vb-ui/web
+      
+    - name: Release
+      env:
+        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+      run: heroku container:release web -a qa-vb-ui
