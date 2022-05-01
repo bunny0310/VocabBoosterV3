@@ -126,7 +126,15 @@ export class Words extends React.Component<RouteComponentProps, WordsState> {
 
   deleteWordHandler = async (id: string): Promise<boolean> => {
     const outcome = await _wordsApi.deleteWord(id);
-    return outcome.data??false;
+    const status = outcome.data ?? false;
+    if (status) {
+      const newWords = [...this.state.words];
+      newWords.filter(w => w.id === id);
+      this.setState({
+        words: newWords
+      })
+    }
+    return status
   }
 
   render(): React.ReactNode {
