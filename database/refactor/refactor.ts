@@ -86,7 +86,8 @@ for(const word of words) {
     })
     const morphedWord = {
         ...word,
-        types: mappedTypes
+        types: mappedTypes,
+        user: {"$oid":"5fef467bcb823fa32b020478"}
     }
     morphedWords.push(morphedWord)
 }

@@ -11,6 +11,7 @@ DotEnv.Load(dotenv);
 
 // Add services to the container.
 builder.Services.AddScoped<ServiceFactory>();
+builder.Services.AddScoped<IIdentityService, IdentityService>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)    
 .AddJwtBearer(options =>    
 {    

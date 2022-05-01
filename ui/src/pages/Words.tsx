@@ -20,6 +20,7 @@ import { IWordsApiClient } from "../api_clients/IWordsApiClient";
 import { WordModel } from "../api_clients/WordsApiClient";
 import { _authApi, _wordsApi } from "../App";
 import { ApiCallStatus } from "../components/AddWordForm";
+import { NoWordFound } from "../components/NoWordFound";
 import { SearchModal } from "../components/SearchModal";
 import { Word } from "../components/Word";
 import { WordSkeletonLoading } from "../components/WordSkeletonLoading";
@@ -54,7 +55,6 @@ export class Words extends React.Component<RouteComponentProps, WordsState> {
   };
 
   componentDidMount = () => {
-    // _authApi.authorize();
     this.setState({
       ...this.state,
       status: ApiCallStatus.PROCESSING,
@@ -76,7 +76,7 @@ export class Words extends React.Component<RouteComponentProps, WordsState> {
   getWords = async (limit: number, offset: number) => {
     const newWords = this.state.words;
     const queryWords = await this.apiCall(limit, offset);
-    if (queryWords == null || queryWords?.length === 0) {
+    if (queryWords == null) {
       return 0;
     }
     queryWords && queryWords.length > 0 && newWords.push(...queryWords);
@@ -145,7 +145,7 @@ export class Words extends React.Component<RouteComponentProps, WordsState> {
           modalHandler={this.searchModalHandler}
         ></SearchModal>
         {this.state.status === ApiCallStatus.SUCCESS && (
-          <> 
+          this.state.words.length > 0 ? (<> 
             {words.map((word) => {
               return (
                 <Word
@@ -173,7 +173,9 @@ export class Words extends React.Component<RouteComponentProps, WordsState> {
             loadingText="Loading more words..."
           ></IonInfiniteScrollContent>
         </IonInfiniteScroll>
-          </>
+          </>)
+          :
+          <NoWordFound />
         )}
         {(this.state.status === ApiCallStatus.PROCESSING || this.state.status === ApiCallStatus.FAIL) && (
           <>
