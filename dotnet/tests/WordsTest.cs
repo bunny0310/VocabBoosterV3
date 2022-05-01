@@ -12,6 +12,7 @@ using System;
 using MongoDB.Bson;
 using MongoDB.Driver.Linq;
 using Microsoft.AspNetCore.Http;
+using System.Threading.Tasks;
 
 namespace tests;
 
@@ -130,6 +131,20 @@ public class WordsTest
                 return word;
             });
 
+            _mockWordsRepository.DeleteWord(default, default)
+                .ReturnsForAnyArgs(args => {
+                    var userId = (string)args[0];
+                    var id = (string)args[1];
+                    var wordId = _store.Where(w => w.Value.Id == id && w.Value.UserId == userId)
+                        .FirstOrDefault()
+                        .Key;
+
+                    _store.Remove(wordId);
+
+                    return Task.FromResult(true);
+                });
+                
+
         for (int i=0; i<20; ++i)
         {
             var word = RandomDataGenerator.RandomWord();
@@ -201,5 +216,18 @@ public class WordsTest
         Assert.Equal(DateTime.UtcNow.Date, correctServiceCall.Data?.UpdatedAt?.Date);
         Assert.False(incorrectServiceCall.IsSuccessful);
 
+    }
+
+    [Fact]
+    public async void TestDeleteWord()
+    {
+        var someWord = _store.First().Value;
+
+        var correctServiceCall = await _testWordsService.DeleteWord(someWord.Id);
+        var incorrectServiceCall = await _testWordsService.DeleteWord("corrupted Id");
+
+        Assert.True(correctServiceCall.IsSuccessful && correctServiceCall.Data);
+        Assert.True(incorrectServiceCall.IsSuccessful && !incorrectServiceCall.Data);
+        Assert.False(_store.ContainsKey(someWord.Id));
     }
 }

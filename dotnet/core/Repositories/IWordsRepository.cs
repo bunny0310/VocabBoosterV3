@@ -15,6 +15,7 @@ namespace core.Repositories
 		public Task<Word?> GetWord(string userId, string id);
 		public Task<Word> AddWord(Word word);
 		public Task<Word> EditWord(string userId, Word request);
+		public Task DeleteWord(string userId, string id);
 		public Task<int> GetTotalCount(string userId);
 	}
 }

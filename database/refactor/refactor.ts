@@ -33,6 +33,20 @@ const words = [
     {"_id":{"$oid":"61f0b29b8e3d1637d6e1337e"},"createdAt":{"$date":"2022-01-26T02:31:55.184Z"},"updatedAt":{"$date":"2022-01-26T02:31:55.184Z"},"name":"Rain on someone's parade","user":null,"meaning":"To spoil someone's pleasure","synonyms":["n/a"],"tags":["Hulu"],"sentences":["I don't mean to rain on your parade but I have some bad news."],"types":["Expression"],"__v":null}
 ]
 
+const randomDate = () => {
+
+    return 0;
+}
+
+// for each word, generate a random date
+// add random date to list
+// use list to altar date field before writing to file
+const morphedDates = [];
+for (const word of words) {
+
+    
+}
+
 enum WordType {
     Adverb,
     Adjective,

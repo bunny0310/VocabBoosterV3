@@ -79,6 +79,23 @@ namespace core.Services
                  };
             }
         }
+        public async Task<ExecutionOutcome<bool>> DeleteWord(string id) {
+
+            try {
+                if (string.IsNullOrWhiteSpace(id) || id.Length != 24) {
+                
+                    throw new BadHttpRequestException("Invalid Id");
+                }
+
+                var userId = _identityService.GetUserId();
+                _repository.DeleteWord(userId, id);
+
+                return new ExecutionOutcome<bool>() { Data = true, IsSuccessful = true };
+            } catch (Exception ex) {
+
+                return new ExecutionOutcome<bool>() { Data = false, IsSuccessful = true };
+            }
+        }
         public async Task<ExecutionOutcome<List<SearchWordResponse>>> SearchWordsNameOnly(SearchWordsApiRequest requestBody)
         {
             try

@@ -81,6 +81,11 @@ namespace core.Repositories
 			return request;
 		}
 
+		public async Task DeleteWord(string userId, string id)
+		{
+			await _wordsCollection.FindOneAndDeleteAsync(w => w.UserId == userId && w.Id == id);
+		}
+
 		public async Task<int> GetTotalCount(string userId)
         {
 			var count = (int)await _wordsCollection
