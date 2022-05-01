@@ -150,7 +150,7 @@ export class RegisterForm extends React.Component<IRegisterFormProps, IRegisterF
             color={this.state.apiStatus === ApiCallStatus.SUCCESS ? 'success' : (this.state.apiStatus === ApiCallStatus.FAIL ? 'danger': 'dark')}
             onDidDismiss={this.onDidDismiss}
             message={this.state.apiStatus === ApiCallStatus.SUCCESS ? `Registered successfully, signing you in` : 'Sorry cannot register you in at this moment.'}
-            duration={3000}
+            duration={1500}
             />
         </IonContent>
         </>)
