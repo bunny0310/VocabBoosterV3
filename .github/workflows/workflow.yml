@@ -1,5 +1,5 @@
 
-name: Deploy Auth and Words APIs to QA Heroku
+name: Deploy Auth and Words APIs, and UI to QA Heroku
 
 on: 
   push:
