@@ -88,11 +88,10 @@ const App: React.FC = () => {
 
     _authApi.authorize();
 
-    if (auth) {
+    _messageBus.on(Messages.Login, () => {
+      setAuth(true)
       configureFirstName()
-    }
-
-    _messageBus.on(Messages.Login, () => setAuth(true));
+    });
     _messageBus.on(Messages.Logout, async () => logout());
   }, [auth])
 
