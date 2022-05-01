@@ -80,7 +80,6 @@ const App: React.FC = () => {
           const token = res.value
           if (token) {
             const parsedJWT = parseJWT(token)
-            console.log(parsedJWT)
             const { FirstName, email } = JSON.parse(parsedJWT.data) ?? {}
             setFirstName(FirstName)
           }
