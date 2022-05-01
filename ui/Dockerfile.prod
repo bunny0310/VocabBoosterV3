@@ -1,4 +1,8 @@
-FROM node:alpine
+FROM node:14-alpine
+
+ARG REACT_APP_ENV=${REACT_APP_ENV}
+
+ENV REACT_APP_ENV=${REACT_APP_ENV}
 
 RUN npm install -g serve --silent
 
@@ -6,6 +10,6 @@ COPY package*.json ./
 RUN npm install --silent
 
 COPY . .
-RUN npm run build
+RUN REACT_APP_ENV=${REACT_APP_ENV} npm run build
 
 CMD serve -p $PORT -s dist

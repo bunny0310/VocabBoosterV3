@@ -11,7 +11,7 @@ import { Messages } from "../services/MessageBus";
 import { BaseApiClient } from "./BaseApiClient";
 
 let baseUrl = `${process.env.NODE_ENV === 'production' ? 'https://vocabbooster-words.herokuapp.com/Words' : 'http://localhost:5001/Words'}`;
-if (process.env.REACT_ENV === 'qa') {
+if (process.env.REACT_APP_ENV === 'qa') {
     baseUrl='https://qa-vb-words.herokuapp.com/Words'
 }
 

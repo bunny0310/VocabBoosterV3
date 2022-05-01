@@ -6,7 +6,7 @@ import { _messageBus } from "../App"
 import { Messages } from "../services/MessageBus"
 
 let baseUrl = `${process.env.NODE_ENV === 'production' ? 'https://vocabbooster-auth.herokuapp.com/Auth' : 'http://localhost:5002/Auth'}`;
-if (process.env.REACT_ENV === 'qa') {
+if (process.env.REACT_APP_ENV === 'qa') {
     baseUrl='https://qa-vb-auth.herokuapp.com/Auth'
 }
 
