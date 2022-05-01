@@ -22,18 +22,17 @@ export class RegisterRequest extends AuthenticationRequest {
 
 export interface TokenValidationRequest {
     token: string
-} 
+}
 
 export const jwtKeyName = "JWT_VOCABBOOSTER_2022";
 
 @injectable()
 export class AuthApiClient {
-    login = async (request: AuthenticationRequest) => {
+    login = async (request: AuthenticationRequest): Promise<string | undefined> => {
         try {
-            const result = await axios.post(baseUrl, request);
-            const data = await result.data;
-            await Storage.set({"key": jwtKeyName, "value": data});
-            return data;
+            const result = await axios.post<string>(baseUrl, request);
+            await Storage.set({"key": jwtKeyName, "value": result.data});
+            return result.data;
         } catch (error: any) {
             return undefined;
         }

@@ -22,7 +22,7 @@ export const LoginForm = (props: LoginFormProps) => {
     const loginButtonRef = React.useRef<HTMLIonButtonElement>(null)
 
     const login = async (values: AuthenticationRequest): Promise<void> => {
-        const outcome: string | undefined = await _authApi.login(values);
+        const outcome = await _authApi.login(values);
         outcome == null ? setStatus(ApiCallStatus.FAIL) : setStatus(ApiCallStatus.SUCCESS);
     }
 

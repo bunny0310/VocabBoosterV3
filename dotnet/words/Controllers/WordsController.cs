@@ -26,6 +26,7 @@ namespace words.Controllers
         [Authorize]
         public async Task<IActionResult> Get([FromQuery] SearchWordsApiRequest requestBody, int limit = 5, int offset = 0)
         {
+            Console.WriteLine(requestBody);
             var outcome = await serviceFactory.WordsService().GetWords(limit, offset, requestBody);
             return OkOrError(outcome);
         }

@@ -1,11 +1,9 @@
-﻿using System;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
-using System.Security.Claims;
-using core;
+using core.Models.Response;
 using core.Services;
+using System.Text.Json;
 
 namespace core.Middlewares
 {
@@ -45,10 +43,10 @@ namespace core.Middlewares
                 }, out SecurityToken validatedToken);
 
                 var jwtToken = (JwtSecurityToken)validatedToken;
-                var email = (jwtToken.Claims.First(x => x.Type == ClaimTypes.Name).Value);
+                var userDTO = JsonSerializer.Deserialize<UserDTO>(jwtToken.Claims.First(x => x.Type == "data").Value);
 
                 // attach user to context on successful jwt validation
-                var userServiceCall = await userService.GetUserByEmail(email);
+                var userServiceCall = await userService.GetUserByEmail(userDTO?.Email);
                 if (!userServiceCall.IsSuccessful)
                 {
                     throw new Exception("user not found!");

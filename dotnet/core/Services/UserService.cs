@@ -26,7 +26,7 @@ namespace core.Services
                     throw new UnauthorizedAccessException("Invalid user credentials");
                 }
 
-                return new ExecutionOutcome<UserDTO>(){ Data = new UserDTO() {Email = user.Email}, IsSuccessful = true };
+                return new ExecutionOutcome<UserDTO>(){ Data = new UserDTO() { Email = user.Email, FirstName = user.FirstName }, IsSuccessful = true };
             }
             catch (Exception e) {
                 return new ExecutionOutcome<UserDTO>(){ IsSuccessful = false, Exception = e };

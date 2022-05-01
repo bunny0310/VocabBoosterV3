@@ -21,7 +21,7 @@ namespace auth.Controllers
         public async Task<IActionResult> Login([FromBody] AuthenticationRequest request) {
             var outcome = await _serviceFactory.UserService().AuthenticateUser(request);
             if (outcome.IsSuccessful && outcome.Data != null) {
-                var jwtOutcome = _serviceFactory.TokenService().BuildToken(ConfigurationVariables.JwtKey, ConfigurationVariables.JwtIssuer, request);
+                var jwtOutcome = _serviceFactory.TokenService().BuildToken(ConfigurationVariables.JwtKey, ConfigurationVariables.JwtIssuer, outcome.Data);
                 return OkOrError(jwtOutcome);
             }
             return OkOrError(outcome);
@@ -31,7 +31,7 @@ namespace auth.Controllers
         public async Task<IActionResult> Signup([FromBody] SignupRequest request) {
             var outcome = await _serviceFactory.UserService().SignupUser(request);
             if (outcome.IsSuccessful && outcome.Data != null) {
-                var jwtOutcome = _serviceFactory.TokenService().BuildToken(ConfigurationVariables.JwtKey, ConfigurationVariables.JwtIssuer, request);
+                var jwtOutcome = _serviceFactory.TokenService().BuildToken(ConfigurationVariables.JwtKey, ConfigurationVariables.JwtIssuer, outcome.Data);
                 return OkOrError(jwtOutcome);
             }
             return OkOrError(outcome);

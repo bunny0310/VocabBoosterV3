@@ -1,17 +1,7 @@
 using Xunit;
-using NSubstitute;
-using MongoDB.Driver;
-using core.Models.Data;
 using core.Services;
-using System.Collections.Generic;
-using System.Linq;
-using core.Repositories;
-using System;
-using System.Linq.Expressions;
-using MongoDB.Driver.Linq;
-using MongoDB.Bson;
 using core.Utils;
-using core.Models.Request;
+using core.Models.Response;
 
 namespace tests
 {
@@ -20,7 +10,7 @@ namespace tests
         private ITokenService _testTokenService;
         private string _testKey;
         private string _testIssuer;
-        private AuthenticationRequest _testAuthRequest;
+        private UserDTO _testAuthDTO;
 
         public TokenTest()
         {
@@ -29,17 +19,17 @@ namespace tests
             _testIssuer = "TEST_ISSUER";
 
             var user = RandomDataGenerator.RandomUser();
-            _testAuthRequest = new AuthenticationRequest()
+            _testAuthDTO = new UserDTO()
             {
                 Email = user.Email,
-                Password = user.Password
+                FirstName = user.FirstName
             };
         }
 
         [Fact]
         public void TestBuildToken()
         {
-            var serviceCall =  _testTokenService.BuildToken(_testKey, _testIssuer, _testAuthRequest);
+            var serviceCall =  _testTokenService.BuildToken(_testKey, _testIssuer, _testAuthDTO);
 
             Assert.True(serviceCall.IsSuccessful);
             Assert.NotNull(serviceCall.Data);
@@ -49,7 +39,7 @@ namespace tests
         [Fact]
         public async void TestIsTokenValid()
         {
-            var correctToken = _testTokenService.BuildToken(_testKey, _testIssuer, _testAuthRequest).Data ?? "";
+            var correctToken = _testTokenService.BuildToken(_testKey, _testIssuer, _testAuthDTO).Data ?? "";
             var incorrectToken = "wrong_token";
 
             var correctServiceCall = _testTokenService.IsTokenValid(_testKey, _testIssuer, correctToken);

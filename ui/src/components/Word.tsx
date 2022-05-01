@@ -286,8 +286,9 @@ export class Word extends React.Component<WordProps, WordState> {
           </IonCardHeader>
           <IonCardContent>
             <IonList>
-              {this.props.sentences.map((sentence) => (
+              {this.props.sentences.map((sentence, i) => (
                 <IonItem
+                  key={i}
                   style={{
                     "--border-color": "blue",
                   }}

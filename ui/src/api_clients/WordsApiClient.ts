@@ -3,7 +3,7 @@ import "reflect-metadata";
 import { IWordsApiClient } from './IWordsApiClient'
 import { Storage } from '@capacitor/storage';
 import axios from "axios";
-import { SearchWordsApiRequest } from "../components/SearchModal";
+import { SearchWordsByNameApiRequest } from "../pages/Words";
 import { jwtKeyName } from "./AuthApiClient";
 import { Word } from "../components/Word";
 import { _messageBus } from "../App";
@@ -87,11 +87,16 @@ export interface ApiOutcome<T> {
 
 @injectable()
 export class WordsApiClient extends BaseApiClient implements IWordsApiClient{
-    getWords = async (limit: number, offset: number): Promise<ApiOutcome<WordModel[] | undefined>> => {
+    getWords = async (limit: number, offset: number, filter?: SearchWordsByNameApiRequest): Promise<ApiOutcome<WordModel[] | undefined>> => {
             const queryModel: SearchWordsQueryModel = {
                 ...defaultSearchWordsQueryModel,
                 limit,
                 offset
+            }
+            if (filter) {
+                queryModel.filter = true
+                queryModel.searchByName = true
+                queryModel.q = filter.searchValue
             }            
             const outcome = await this.getApi<WordModel[] | undefined>(this.generateWordsQuery(queryModel));
             return outcome;
@@ -121,11 +126,11 @@ export class WordsApiClient extends BaseApiClient implements IWordsApiClient{
 
     private generateWordsQuery = (searchWordsQueryModel: SearchWordsQueryModel) => {
         const {filter, limit, offset, searchByName, searchByMeaning, searchBySentences, searchBySynonyms, searchByTags, q} = searchWordsQueryModel
-        return `${baseUrl}?limit=${limit}&offset=${offset}&filter=${filter}&searchByName=${searchByName}&searchByMeaning=${searchByMeaning}&searchBySentences=${searchBySentences}&searchBySynonyms=${searchBySynonyms}&searchByTags=${searchByTags}&q=${q}`
+        return `${baseUrl}?limit=${limit}&offset=${offset}&filter=${filter}&searchByName=${searchByName}&searchByMeaning=${searchByMeaning}&searchBySentences=${searchBySentences}&searchBySynonyms=${searchBySynonyms}&searchByTags=${searchByTags}&searchValue=${q}`
     }
     
-    searchWordsNameOnly = async (postRequest: SearchWordsApiRequest) => {
-        const outcome = await this.postApi<SearchWordsApiRequest, SearchWordResponse[] | undefined>(`${baseUrl}/SearchWordsNameOnly`, postRequest);
+    searchWordsNameOnly = async (postRequest: SearchWordsByNameApiRequest) => {
+        const outcome = await this.postApi<SearchWordsByNameApiRequest, SearchWordResponse[] | undefined>(`${baseUrl}/SearchWordsNameOnly`, postRequest);
         return outcome;
     }
 
