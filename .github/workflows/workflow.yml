@@ -1,0 +1,31 @@
+
+name: Deploy Auth and Words APIs to QA Heroku
+
+on: 
+  push:
+    branches: [ CS520 ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Login to Heroku Container registry
+      env: 
+        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+      run: heroku container:login
+
+    - uses: docker/setup-buildx-action@v1 
+    - name: Build and push
+      env:
+        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+      with:
+        context: ./dotnet/
+        file: ./dotnet/Dockerfile.auth.prod
+        push: true
+        tags: registry.heroku.com/qa-vb-auth/web
+      
+    - name: Release
+      env:
+        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+      run: heroku container:release -a qa-vb-auth
