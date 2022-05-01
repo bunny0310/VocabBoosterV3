@@ -226,8 +226,8 @@ public class WordsTest
         var correctServiceCall = await _testWordsService.DeleteWord(someWord.Id);
         var incorrectServiceCall = await _testWordsService.DeleteWord("corrupted Id");
 
-        Assert.True(correctServiceCall.IsSuccessful && correctServiceCall.Data);
-        Assert.True(incorrectServiceCall.IsSuccessful && !incorrectServiceCall.Data);
+        Assert.True(correctServiceCall.IsSuccessful);
+        Assert.False(incorrectServiceCall.IsSuccessful);
         Assert.False(_store.ContainsKey(someWord.Id));
     }
 }

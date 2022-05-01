@@ -157,7 +157,7 @@ export class WordsApiClient extends BaseApiClient implements IWordsApiClient{
             code: outcome.code,
             isSuccessful: outcome.isSuccessful,
             message: outcome.message,
-            data: outcome.data ? true : false
+            data: outcome.data != null ? outcome.data : false
         }
         return result;
     }
