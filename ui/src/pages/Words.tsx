@@ -129,7 +129,10 @@ export class Words extends React.Component<RouteComponentProps, WordsState> {
     const status = outcome.data ?? false;
     if (status) {
       const newWords = [...this.state.words];
-      newWords.filter(w => w.id === id);
+      const index = newWords.findIndex(w => w.id === id);
+      if (index !== -1) {
+        newWords.splice(index, 1);
+      }
       this.setState({
         words: newWords
       })
