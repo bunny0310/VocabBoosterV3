@@ -147,4 +147,15 @@ export class WordsApiClient extends BaseApiClient implements IWordsApiClient{
         };
         return result;
     };
+
+    deleteWord = async (id: string): Promise<ApiOutcome<boolean>> => {
+        const outcome = await this.deleteApi<boolean>(`${baseUrl}/${id}`);
+        const result = {
+            code: outcome.code,
+            isSuccessful: outcome.isSuccessful,
+            message: outcome.message,
+            data: outcome.data ? true : false
+        }
+        return result;
+    }
 }

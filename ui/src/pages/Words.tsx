@@ -124,6 +124,11 @@ export class Words extends React.Component<RouteComponentProps, WordsState> {
     audio?.play()
   }
 
+  deleteWordHandler = async (id: string): Promise<boolean> => {
+    const outcome = await _wordsApi.deleteWord(id);
+    return outcome.data??false;
+  }
+
   render(): React.ReactNode {
     const words = this.state.words;
     return (
@@ -153,6 +158,7 @@ export class Words extends React.Component<RouteComponentProps, WordsState> {
                   types={word.types}
                   audioHandler={this.audioHandler}
                   audio={this.state.audio}
+                  handleDeleteWord={this.deleteWordHandler}
                   {...this.props}
                 ></Word>
               );

@@ -47,6 +47,11 @@ enum WordViewOption {
   Types,
 }
 
+interface DeleteOptions {
+  id?: string;
+  isDeletable: boolean;
+}
+
 interface WordState {
   selectedWordViewOption: WordViewOption;
   information: string;
@@ -54,12 +59,14 @@ interface WordState {
     show: boolean,
     event: any
   };
-  showPlayFailToast: boolean
+  showPlayFailToast: boolean;
+  deleteOptions: DeleteOptions;
 }
 
 interface WordProps extends WordModel, RouteComponentProps {
   audio?: HTMLAudioElement
   audioHandler: (audio?: HTMLAudioElement) => void
+  handleDeleteWord: (id: string) => Promise<boolean>
 }
 
 export class Word extends React.Component<WordProps, WordState> {
@@ -72,7 +79,10 @@ export class Word extends React.Component<WordProps, WordState> {
         show: false,
         event: undefined
       },
-      showPlayFailToast: false
+      showPlayFailToast: false,
+      deleteOptions: {
+        isDeletable: false
+      }
     };
   }
 
@@ -179,7 +189,11 @@ export class Word extends React.Component<WordProps, WordState> {
                       popoveroptions: {
                         ...this.state.popoveroptions,
                         show: false,
-                      }
+                      },
+                      deleteOptions: {
+                        id: undefined,
+                        isDeletable: false
+                      },
                     }, () => this.props.history.push(`/editword/${this.props.id}`))
                     
                   }
@@ -187,9 +201,34 @@ export class Word extends React.Component<WordProps, WordState> {
                     <IonIcon color={"primary"} icon={pencilOutline} />
                     Edit
                   </IonItem>
-                  <IonItem>
+                  <IonItem
+                  
+                    onClick={() => {
+                      if (this.state.deleteOptions.id != null && this.state.deleteOptions.isDeletable) {
+                        this.props.handleDeleteWord(this.props.id!)
+                        this.setState({
+                          ...this.state,
+                          popoveroptions: {
+                            ...this.state.popoveroptions,
+                            show: false,
+                          },
+                          deleteOptions: {
+                            id: undefined,
+                            isDeletable: false
+                          }
+                        });
+                      } else {
+                        this.setState({
+                          deleteOptions: {
+                            id: this.props.id,
+                            isDeletable: true
+                          }
+                        })
+                      }
+                    }
+                  }>
                     <IonIcon color={"danger"} icon={trashOutline} />
-                    Delete
+                    Delete {this.state.deleteOptions.id != null && this.state.deleteOptions.isDeletable && <span style={{fontSize: "12px", color: "#ff0000"}}>(Click Again to Confirm)</span>}
                   </IonItem>
                 </IonList>
             </IonPopover>

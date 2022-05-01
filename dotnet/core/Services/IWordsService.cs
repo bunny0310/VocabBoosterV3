@@ -8,7 +8,8 @@ namespace core.Services
     {
         public Task<List<Word>> GetWords(int limit = 5, int offset = 0, SearchWordsApiRequest requestBody = null);
         public Task<ExecutionOutcome<Word>> GetWord(string id);
-        public Task<List<SearchWordResponse>> SearchWordsNameOnly(SearchWordsApiRequest requestBody);
+        public Task<ExecutionOutcome<bool>> DeleteWord(string id);
+        public Task<ExecutionOutcome<List<SearchWordResponse>>> SearchWordsNameOnly(SearchWordsApiRequest requestBody);
 
         public Task<Word> AddWord(Word request);
         public Task<ExecutionOutcome<Word>> EditWord(Word request);

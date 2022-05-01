@@ -52,15 +52,24 @@ namespace words.Controllers
         }
 
         [HttpPost]
-        public async Task<Word> PostWord([FromBody] Word body) {
-            var word = await serviceFactory.WordsService().AddWord(body);
-            return word;
+        [Authorize]
+        public async Task<IActionResult> PostWord([FromBody] Word body) {
+            var outcome = await serviceFactory.WordsService().AddWord(body);
+            return OkOrError(outcome);
         } 
 
         [HttpPut]
+        [Authorize]
         public async Task<IActionResult> EditWord([FromBody] Word body) {
             var outcome = await serviceFactory.WordsService().EditWord(body);
             return OkOrError(outcome);
         } 
+
+        [HttpDelete{"{id"}]
+        [Authorize]
+        public async Task<IActionResult> DeleteWord(string id) {
+            var outcome = await ServiceFactory.WordsService().DeleteWord(id);
+            return OkOrError(outcome);
+        }
     }
 }
