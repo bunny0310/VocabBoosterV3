@@ -17,7 +17,7 @@ jobs:
       run: heroku container:login
 
     - uses: docker/setup-buildx-action@v1 
-      name: Build and push
+      name: Build and push Auth API
       env:
         HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
       with:
@@ -30,3 +30,18 @@ jobs:
       env:
         HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
       run: heroku container:release web -a qa-vb-auth
+
+    - uses: docker/setup-buildx-action@v1 
+      name: Build and push Words API
+      env:
+        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+      with:
+        context: ./dotnet/
+        file: ./dotnet/Dockerfile.words.prod
+        push: true
+        tags: registry.heroku.com/qa-vb-words/web
+      
+    - name: Release
+      env:
+        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+      run: heroku container:release web -a qa-vb-words
