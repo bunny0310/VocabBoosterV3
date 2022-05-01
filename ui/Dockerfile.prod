@@ -1,6 +1,6 @@
 FROM node:alpine
 
-RUN npm install -g serve
+RUN npm install -g serve --silent
 
 COPY package*.json ./
 RUN npm install --silent
