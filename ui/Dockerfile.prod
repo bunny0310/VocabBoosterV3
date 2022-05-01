@@ -12,4 +12,4 @@ RUN npm install --silent
 COPY . .
 RUN REACT_APP_ENV=qa npm run build
 
-CMD serve -p $PORT -s dist
+CMD serve -p $PORT -s public
