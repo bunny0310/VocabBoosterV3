@@ -57,7 +57,7 @@ namespace core.Services
                 await _repository
                     .AddUser(user);
 
-                return new ExecutionOutcome<UserDTO>(){ Data = new UserDTO() { Email = user.Email }, IsSuccessful = true };
+                return new ExecutionOutcome<UserDTO>(){ Data = new UserDTO() { Email = user.Email, FirstName = user.FirstName }, IsSuccessful = true };
             }
             catch (Exception ex)
             {
