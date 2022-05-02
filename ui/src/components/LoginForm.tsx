@@ -10,11 +10,16 @@ import { ApiCallStatus } from "./AddWordForm";
 import { FormChipInput } from "./FormChipInput";
 import { FormInput } from "./FormInput";
 import { PasswordInput } from "./PasswordInput";
-import * as Yup from "yup"
+import * as Yup from "yup";
+import CSS from 'csstype';
 
 export interface LoginFormProps {
     data: AuthenticationRequest;
 }
+
+const centerStyle: CSS.Properties = {
+    textAlign: 'center'
+};
 
 export const LoginForm = (props: LoginFormProps) => {
     const history = useHistory(); 
@@ -106,6 +111,11 @@ export const LoginForm = (props: LoginFormProps) => {
                     message={status === ApiCallStatus.SUCCESS ? `Logged in successfully, redirecting` : 'Sorry cannot log you in at this moment.'}
                     duration={600} 
                 />
+                <div style={centerStyle}>
+                    Don't have an account? Click&nbsp;
+                    <a href="/register">here</a>
+                    &nbsp; to register
+                </div>
                 </IonContent>
             </>
     )
