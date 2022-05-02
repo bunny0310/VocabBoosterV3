@@ -106,6 +106,11 @@ export const LoginForm = (props: LoginFormProps) => {
                     message={status === ApiCallStatus.SUCCESS ? `Logged in successfully, redirecting` : 'Sorry cannot log you in at this moment.'}
                     duration={600} 
                 />
+                <div className="ion-text-center">
+                    Don't have an account? Click&nbsp;
+                    <a href="/register">here</a>
+                    &nbsp; to register
+                </div>
                 </IonContent>
             </>
     )
