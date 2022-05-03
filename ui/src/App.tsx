@@ -113,7 +113,7 @@ const App: React.FC = () => {
             </IonButtons>}
           </IonToolbar>
         </IonHeader>
-        <IonContent>
+        <IonContent className='customBg'>
           <IonReactRouter>
               <IonTabs>
                 <IonRouterOutlet>

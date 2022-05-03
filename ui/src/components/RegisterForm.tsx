@@ -1,4 +1,4 @@
-import { IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent, InputChangeEventDetail, IonButton, IonSpinner, IonToast, IonInput } from "@ionic/react";
+import { IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent, InputChangeEventDetail, IonButton, IonSpinner, IonToast, IonInput, IonText } from "@ionic/react";
 import  React  from 'react';
 import { RouteComponentProps, useHistory } from "react-router";
 import { RegisterRequest } from "../api_clients/AuthApiClient";
@@ -10,6 +10,7 @@ import { PasswordInput } from "./PasswordInput";
 import { RedirectComponent } from "./RedirectComponent";
 import { ErrorMessage, Field, Form, Formik } from "formik"
 import * as Yup from "yup"
+import { key, mail, person } from "ionicons/icons";
 
 
 
@@ -72,7 +73,9 @@ export class RegisterForm extends React.Component<IRegisterFormProps, IRegisterF
             <IonCard>
                 <IonCardHeader>
                     <IonCardTitle style={{"textAlign": "center"}}>
-                        Register
+                        <div className="titleHR">
+                            Register
+                        </div>
                     </IonCardTitle>
                 </IonCardHeader>
                 <IonCardContent>
@@ -87,6 +90,7 @@ export class RegisterForm extends React.Component<IRegisterFormProps, IRegisterF
                                     as={FormInput}
                                     name='firstName'
                                     placeholder='First Name'
+                                    icon={person}
                                     {...formikProps.getFieldMeta('firstName')}
                                 />
                                 <ErrorMessage
@@ -98,6 +102,7 @@ export class RegisterForm extends React.Component<IRegisterFormProps, IRegisterF
                                     as={FormInput}
                                     name='lastName'
                                     placeholder='Last Name'
+                                    icon={person}
                                     {...formikProps.getFieldMeta('lastName')}
                                 />
                                 <ErrorMessage
@@ -109,6 +114,7 @@ export class RegisterForm extends React.Component<IRegisterFormProps, IRegisterF
                                     as={FormInput}
                                     name='email'
                                     placeholder='Email'
+                                    icon={mail}
                                     {...formikProps.getFieldMeta('email')}
                                 /> 
                                 <ErrorMessage
@@ -120,6 +126,7 @@ export class RegisterForm extends React.Component<IRegisterFormProps, IRegisterF
                                     as={PasswordInput}
                                     name='password'
                                     placeholder='Password'
+                                    icon={key}
                                     {...formikProps.getFieldMeta('password')}
                                 /> 
                                 <ErrorMessage
@@ -138,7 +145,19 @@ export class RegisterForm extends React.Component<IRegisterFormProps, IRegisterF
                                         REGISTER
                                         {this.state.apiStatus === ApiCallStatus.PROCESSING
                                             && <IonSpinner name={"dots"} />}
-                                </IonButton>                                
+                                </IonButton>
+                                <div style={{textAlign: 'center'}}>
+                                    <span> 
+                                        Already a member? Click&nbsp; 
+                                        <IonText 
+                                            style={{cursor: 'pointer', textDecoration: 'underline'}}
+                                            onClick={e => this.props.history.push('/login')}
+                                        >
+                                            here
+                                        </IonText> 
+                                        &nbsp;to sign in
+                                    </span>
+                                </div>                                
                             </Form>                                
                         </>}
                     </Formik>
