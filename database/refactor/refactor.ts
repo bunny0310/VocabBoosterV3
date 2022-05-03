@@ -1,7 +1,7 @@
 import { writeFile } from "fs"
 
 const words = [
-    {"_id":{"$oid":"621867548f165cbc1781a549"},"createdAt":{"$date":"2022-02-25T05:21:24.559Z"},"updatedAt":{"$date":"2022-02-25T05:22:35.181Z"},"name":"Liquify into puddle on the floor","user":null,"meaning":"Feel overwhelmed due to a strong, often nice, emotion","synonyms":["n/a"],"tags":["Meet You in the Middle"],"sentences":["His velvety chocolate sex voice nearly liquifies me into a puddle on the floor."],"types":["Metaphor"],"__v":null},
+    {"_id":{"$oid":"621867548f165cbc1781a549"},"createdAt":{"$date":"c"},"updatedAt":{"$date":"2022-02-25T05:22:35.181Z"},"name":"Liquify into puddle on the floor","user":null,"meaning":"Feel overwhelmed due to a strong, often nice, emotion","synonyms":["n/a"],"tags":["Meet You in the Middle"],"sentences":["His velvety chocolate sex voice nearly liquifies me into a puddle on the floor."],"types":["Metaphor"],"__v":null},
     {"_id":{"$oid":"621860958f165cbc1781a548"},"createdAt":{"$date":"2022-02-25T04:52:37.951Z"},"updatedAt":{"$date":"2022-02-25T04:52:37.951Z"},"name":"Charged","user":null,"meaning":"Filled with excitement, tension or emotion","synonyms":["Intense"],"tags":["Meet You in the Middle"],"sentences":["The highly charged atmosphere created by the boycott.","My mom breaks the charged silence by asking him about his favorite food item.","We stare across the desk at each other in charged silence."],"types":["Adjective"],"__v":null},
     {"_id":{"$oid":"62159fae5d53a5356814cd5a"},"createdAt":{"$date":"2022-02-23T02:45:01.991Z"},"updatedAt":{"$date":"2022-02-23T02:45:01.991Z"},"name":"Cough Up","user":null,"meaning":"Give something reluctantly, especially money or other information that is due or required","synonyms":["Fork over","Pay up","Shell out"],"tags":["Reddit","Informal"],"sentences":["Should I cough up the 200$ or can I have my cake and eat it too?","He coughed up the monthly subscription fee to continue with the service."],"types":["Phrasal Verb"],"__v":null},
     {"_id":{"$oid":"62153bbb6375451e3780c334"},"createdAt":{"$date":"2022-02-22T19:38:35.589Z"},"updatedAt":{"$date":"2022-02-22T19:38:35.589Z"},"name":"Bustling around","user":null,"meaning":"To move in a hurried way because often the person is busy","synonyms":["Scuttle"],"tags":["Meet You in the Middle"],"sentences":["Bustling around the kitchen.","Because her relatives are coming to visit, Annabelle is bustling around the house cleaning the whole house."],"types":["Expression"],"__v":null},
@@ -35,16 +35,15 @@ const words = [
 
 const randomDate = () => {
 
-    return 0;
-}
+    const year = 2022;
+    const month = Math.floor(Math.random() * 12) + 1;
+    const day = Math.floor(Math.random() * 28) + 1;
+    const hour = Math.floor(Math.random() * 24) + 1;
+    const minute = Math.floor(Math.random() * 60) + 1;
+    const second = Math.floor(Math.random() * 60) + 1;
+    const msecond = Math.floor(Math.random() * 1000) + 1;
 
-// for each word, generate a random date
-// add random date to list
-// use list to altar date field before writing to file
-const morphedDates = [];
-for (const word of words) {
-
-    
+    return `${year}-${month}-${day}T${hour}:${minute}:${second}.${msecond}Z`;
 }
 
 enum WordType {
@@ -87,7 +86,8 @@ for(const word of words) {
     const morphedWord = {
         ...word,
         types: mappedTypes,
-        user: {"$oid":"5fef467bcb823fa32b020478"}
+        user: {"$oid":"5fef467bcb823fa32b020478"},
+        date: randomDate(),
     }
     morphedWords.push(morphedWord)
 }
