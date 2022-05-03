@@ -1,6 +1,8 @@
 import { Storage } from "@capacitor/storage";
 import axios from "axios";
 import { injectable } from "inversify";
+import { _messageBus } from "../App";
+import { Messages } from "../services/MessageBus";
 import { jwtKeyName } from "./AuthApiClient";
 import { ApiOutcome } from "./WordsApiClient";
 
@@ -38,6 +40,7 @@ export abstract class BaseApiClient {
                 code: await error?.response?.status,
                 isSuccessful: false
             };
+            outcome.code === 401 && _messageBus.dispatch(Messages.Logout, "")
             return outcome;    
         }
     }
@@ -59,6 +62,7 @@ export abstract class BaseApiClient {
                 code: await error?.response?.status,
                 isSuccessful: false
             };
+            outcome.code === 401 && _messageBus.dispatch(Messages.Logout, "")
             return outcome;    
         }
     }
@@ -80,6 +84,7 @@ export abstract class BaseApiClient {
                 code: await error?.response?.status,
                 isSuccessful: false
             };
+            outcome.code === 401 && _messageBus.dispatch(Messages.Logout, "")
             return outcome;    
         }
     }
@@ -101,6 +106,7 @@ export abstract class BaseApiClient {
                 code: await error?.response?.status,
                 isSuccessful: false
             };
+            outcome.code === 401 && _messageBus.dispatch(Messages.Logout, "")
             return outcome;    
         }
     }
