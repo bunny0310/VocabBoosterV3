@@ -4,16 +4,17 @@ import React from "react";
 import './inputs.css'
 
 export interface PasswordInputProps {
-    name?: string
-    label: string
-    value?: string
-    onChange?: (e: CustomEvent<InputChangeEventDetail>) => void
-    onBlur?: (e: CustomEvent<FocusEvent>) => void
-    onFocus?: (e: CustomEvent<FocusEvent>) => void
     disabled?: boolean
-    placeholder?: string
     error?: string
+    icon?: string
+    label: string
+    name?: string
+    onBlur?: (e: CustomEvent<FocusEvent>) => void
+    onChange?: (e: CustomEvent<InputChangeEventDetail>) => void
+    onFocus?: (e: CustomEvent<FocusEvent>) => void
+    placeholder?: string
     touched: boolean
+    value?: string
 }
 export const PasswordInput = (props: PasswordInputProps) => {
     const [show, setShow] = React.useState<boolean>(false);
@@ -23,6 +24,7 @@ export const PasswordInput = (props: PasswordInputProps) => {
             <IonItem
                 className={props.error && props.touched ? 'error': ''}
             >
+                {props.icon && <i style={{paddingRight: '10px'}}><IonIcon icon={props.icon} /></i> }
                 <IonInput
                     name={props.name}
                     type={show ? "text" : "password"}

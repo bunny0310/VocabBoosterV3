@@ -1,4 +1,4 @@
-import { IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent, InputChangeEventDetail, IonButton, IonSpinner, IonToast } from "@ionic/react";
+import { IonContent, IonCard, IonCardHeader, IonCardTitle, IonCardContent, InputChangeEventDetail, IonButton, IonSpinner, IonToast, IonText } from "@ionic/react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import React from "react";
 import { useHistory } from "react-router";
@@ -12,14 +12,11 @@ import { FormInput } from "./FormInput";
 import { PasswordInput } from "./PasswordInput";
 import * as Yup from "yup";
 import CSS from 'csstype';
+import { key, mail } from "ionicons/icons";
 
 export interface LoginFormProps {
     data: AuthenticationRequest;
 }
-
-const centerStyle: CSS.Properties = {
-    textAlign: 'center'
-};
 
 export const LoginForm = (props: LoginFormProps) => {
     const history = useHistory(); 
@@ -47,11 +44,11 @@ export const LoginForm = (props: LoginFormProps) => {
     })
 
     return (<>
-                <IonContent className="center">
+                <IonContent>
                     <IonCard>
                         <IonCardHeader>
                             <IonCardTitle style={{"textAlign": "center"}}>
-                                Login
+                                <div className='titleHR'>Login</div>
                             </IonCardTitle>
                         </IonCardHeader>
                         <IonCardContent onKeyUp={handleEnterPressed}>
@@ -66,6 +63,7 @@ export const LoginForm = (props: LoginFormProps) => {
                                         as={FormInput}
                                         name='email'
                                         placeholder='Email'
+                                        icon={mail}
                                         {...formikProps.getFieldMeta('email')} />
                                     <ErrorMessage
                                         name='email'
@@ -74,6 +72,7 @@ export const LoginForm = (props: LoginFormProps) => {
                                     <Field
                                         as={PasswordInput}
                                         name='password'
+                                        icon={key}
                                         placeholder='Password'
                                         {...formikProps.getFieldMeta('password')} />
                                     <ErrorMessage
@@ -94,6 +93,18 @@ export const LoginForm = (props: LoginFormProps) => {
                                         LOGIN
                                         {status === ApiCallStatus.PROCESSING && <IonSpinner name={"dots"} />}
                                     </IonButton>
+                                    <div style={{textAlign: 'center'}}>
+                                        <span> 
+                                            Don't have an account? Click&nbsp; 
+                                            <IonText 
+                                                style={{cursor: 'pointer', textDecoration: 'underline'}}
+                                                onClick={e => history.push('/register')}
+                                            >
+                                                here
+                                            </IonText> 
+                                            &nbsp;to register
+                                        </span>
+                                    </div>
                                 </Form>}
                             </Formik>
                         </IonCardContent>
@@ -111,11 +122,6 @@ export const LoginForm = (props: LoginFormProps) => {
                     message={status === ApiCallStatus.SUCCESS ? `Logged in successfully, redirecting` : 'Sorry cannot log you in at this moment.'}
                     duration={600} 
                 />
-                <div style={centerStyle}>
-                    Don't have an account? Click&nbsp;
-                    <a href="/register">here</a>
-                    &nbsp; to register
-                </div>
                 </IonContent>
             </>
     )
