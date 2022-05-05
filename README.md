@@ -15,3 +15,4 @@ A cross platform application that allows users to keep track of their words and 
 3. Make sure that your local Mongo server is running on port 27017. Cd into the `database/scripts` subdirectory of the probject and run the **setup.sh** script to initialize the database. Use the command `sh setup.sh`.
 4. In a seperate terminal window, fire up the words API on the port 5001. Ensure that the port number is not being used by any other application. Cd into `dotnet/words` and run the command `dotnet run --urls=http://localhost:5001/`.
 5. Similarly, in a separate terminal window, fire up the auth API on the port 5002. Cd into `dotnet/auth` and run the command `dotnet run --urls=http://localhost:5002/`.
+6. Run the React project in a seperate terminal window. Cd into `ui` and do `npm install` to install all the project dependencies followed by `npm start`.
