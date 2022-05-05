@@ -1,4 +1,4 @@
 {"_id":{"$oid":"5fef467bcb823fa32b020478"},"createdAt":{"$date":"2021-01-01T15:57:47.466Z"},"firstName":"Ishaan","lastName":"Khurana","password":"ishaan","email":"ikhurana@umass.edu"}
-{"_id":{"$oid":"5ff6591e5acc974c5ed3f1a6"},"createdAt":{"$date":"2021-01-07T00:40:04.14Z"},"firstName":"Erik","lastName":"Venable","email":"evenable@umass.edu","password":"erik123"}
+{"_id":{"$oid":"5ff6591e5acc974c5ed3f1a6"},"createdAt":{"$date":"2021-01-07T00:40:04.14Z"},"firstName":"Heather","lastName":"Conboy","email":"hconboy@cs.umass.edu","password":"test123"}
 {"_id":{"$oid":"5ff6591e5acc974c5ed3f1a7"},"createdAt":{"$date":"2021-01-07T00:40:04.14Z"},"firstName":"Yam","lastName":"Mangalili","email":"ymangalili@umass.edu","password":"yam123"}
 
