@@ -1,1 +1,0 @@
-mongoimport --host localhost --username test --password test123 --db db --collection words --type json --file words.json
