@@ -27,4 +27,4 @@ RUN dotnet publish "words.csproj" -c Release -o /app/publish
 FROM base as final
 WORKDIR /app
 COPY --from=publish /app/publish .
-CMD ASPNETCORE_URLS=http://*:$PORT dotnet words.dll
+CMD ASPNETCORE_URLS=http://*:5000 dotnet words.dll

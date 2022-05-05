@@ -4,10 +4,8 @@ namespace core.Models.Request
 {
     public class AuthenticationRequest
     {
-        [EmailAddress, Required]
+        [EmailAddress]
         public string Email { get; set; }
-
-        [Required]
         public string Password { get; set; }
     }
 }

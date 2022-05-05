@@ -10,9 +10,7 @@ namespace core.Models.Data {
         Excerpt,
         Expression,
         Noun,
-        Verb,
-        Metaphor,
-        PhrasalVerb
+        Verb
     }
     public class Word
     {
@@ -45,9 +43,8 @@ namespace core.Models.Data {
         [BsonElement("sentences")]
         public List<string> Sentences {get; set;}
 
-        [BsonRepresentation(BsonType.Int32)]
         [BsonElement("types")]
-        public List<WordType> Types {get; set;}
+        public List<string> Types {get; set;}
 
         [BsonElement("__v")]
         public int? V { get; set; }

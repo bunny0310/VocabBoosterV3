@@ -1,99 +1,59 @@
 import {
+  IonCard,
+  IonCardContent,
+  IonCardHeader,
+  IonCardSubtitle,
   IonContent,
   IonInfiniteScroll,
   IonInfiniteScrollContent,
-  IonProgressBar,
   IonRefresher,
   IonRefresherContent,
   IonSearchbar,
+  IonSkeletonText,
   IonToast,
-  IonToolbar,
   RefresherEventDetail,
 } from "@ionic/react";
+import { inject } from "inversify";
 import React from "react";
 import { RouteComponentProps } from "react-router";
+import { IWordsApiClient } from "../api_clients/IWordsApiClient";
 import { WordModel } from "../api_clients/WordsApiClient";
 import { _authApi, _wordsApi } from "../App";
 import { ApiCallStatus } from "../components/AddWordForm";
-import { NoWordFound } from "../components/NoWordFound";
+import { SearchModal } from "../components/SearchModal";
 import { Word } from "../components/Word";
 import { WordSkeletonLoading } from "../components/WordSkeletonLoading";
-
-interface SearchOptions {
-  searching: boolean,
-  filter?: SearchWordsByNameApiRequest
-}
+import container from "../SettingsManager";
 
 export interface WordsState {
   words: WordModel[];
-  searchOptions: SearchOptions;
+  showSearchModal: boolean;
   status: ApiCallStatus;
   infiniteDisabled: boolean;
-  audio?: HTMLAudioElement;
 }
-
-export class SearchWordsApiRequestBase {
-  filter: boolean = true;
-  searchByName: boolean = false;
-  searchByMeaning: boolean = false;
-  searchBySentences: boolean = false;
-  searchBySynonyms: boolean = false;
-  searchByTags: boolean = false;
-  searchByType: boolean = false;
-}
-
-export class SearchWordsByNameApiRequest extends SearchWordsApiRequestBase {
-  searchValue: string;
-
-  constructor(searchValue: string) {
-    super()
-    this.searchValue = searchValue
-    this.searchByName = true
-  }
-}
-
 export class Words extends React.Component<RouteComponentProps, WordsState> {
   constructor(props: any) {
     super(props);
     this.state = {
       words: [],
-      searchOptions: {
-        searching: false
-      },
+      showSearchModal: false,
       status: ApiCallStatus.NONE,
       infiniteDisabled: false
     };
   }
 
-  private searchWords = async (phrase: string): Promise<void> => {
-
-    const filterRequest = new SearchWordsByNameApiRequest(phrase)
-
+  private searchModalHandler = (e: CustomEvent<void>, id?: string): void => {
+    if (id) {
+      this.props.history.push(`/addeditword/${id}`);
+    }
     this.setState({
       ...this.state,
-      status: ApiCallStatus.PROCESSING,
-      searchOptions: {
-        searching: true,
-        filter: !phrase || phrase.trim().length === 0 ? undefined : filterRequest
-      }
+      showSearchModal: !this.state.showSearchModal,
     });
-
-    const webCall = async () => {
-      const filteredWords = await this.apiCall(5, 0, this.state.searchOptions.filter)
-      this.setState({
-        words: filteredWords ?? [],
-        searchOptions: {
-          ...this.state.searchOptions,
-          searching: false
-        },
-        status: ApiCallStatus.SUCCESS,
-      });
-    }
-
-    webCall()
-  }
+  };
 
   componentDidMount = () => {
+    // _authApi.authorize();
     this.setState({
       ...this.state,
       status: ApiCallStatus.PROCESSING,
@@ -101,8 +61,8 @@ export class Words extends React.Component<RouteComponentProps, WordsState> {
     this.getWords(5, 0);
   };
   
-  apiCall = async (limit: number, offset: number, filter?: SearchWordsByNameApiRequest) => {
-    const outcome = await _wordsApi.getWords(limit, offset, filter);
+  apiCall = async (limit: number, offset: number) => {
+    const outcome = await _wordsApi.getWords(limit, offset);
     if (!outcome.isSuccessful) {
         this.setState({
         ...this.state,
@@ -112,19 +72,16 @@ export class Words extends React.Component<RouteComponentProps, WordsState> {
     }
     return outcome.data;
   }
-  getWords = async (limit: number, offset: number, filter?: SearchWordsByNameApiRequest) => {
+  getWords = async (limit: number, offset: number) => {
     const newWords = this.state.words;
-    const queryWords = await this.apiCall(limit, offset, filter);
-    if (queryWords == null) {
+    const queryWords = await this.apiCall(limit, offset);
+    if (queryWords == null || queryWords?.length === 0) {
       return 0;
     }
     queryWords && queryWords.length > 0 && newWords.push(...queryWords);
     this.setState({
+      ...this.state,
       words: newWords,
-      searchOptions: {
-        ...this.state.searchOptions,
-        searching: false
-      },
       status: ApiCallStatus.SUCCESS,
     });
     return queryWords?.length;
@@ -132,7 +89,7 @@ export class Words extends React.Component<RouteComponentProps, WordsState> {
 
   loadData = async (ev: any) => {
     setTimeout(async () => {
-      const numberQueriedWords = await this.getWords(5, this.state.words.length, this.state.searchOptions.filter);
+      const numberQueriedWords = await this.getWords(5, this.state.words.length);
       numberQueriedWords === 0 && this.setState({
         ...this.state,
         infiniteDisabled: true
@@ -147,7 +104,7 @@ export class Words extends React.Component<RouteComponentProps, WordsState> {
       status: ApiCallStatus.PROCESSING
     });
     const refreshWords = async () => {
-      const refreshedWords = await this.apiCall(5, 0, this.state.searchOptions.filter);
+      const refreshedWords = await this.apiCall(5, 0);
       if (refreshedWords == null || refreshedWords.length === 0) {
         return [];
       }
@@ -161,90 +118,54 @@ export class Words extends React.Component<RouteComponentProps, WordsState> {
     event.detail.complete();
   }
 
-  audioHandler = (audio?: HTMLAudioElement) => {
-    this.setState({audio});
-    audio?.play()
-  }
-
-  deleteWordHandler = async (id: string): Promise<boolean> => {
-    const outcome = await _wordsApi.deleteWord(id);
-    const status = outcome.data ?? false;
-    if (status) {
-      const newWords = [...this.state.words];
-      const index = newWords.findIndex(w => w.id === id);
-      if (index !== -1) {
-        newWords.splice(index, 1);
-      }
-      this.setState({
-        words: newWords
-      })
-    }
-    return status
-  }
-
   render(): React.ReactNode {
     const words = this.state.words;
     return (
       <IonContent>
-
       <IonRefresher slot="fixed" onIonRefresh={this.doRefresh}>
         <IonRefresherContent></IonRefresherContent>
       </IonRefresher>
-
-      <IonToolbar
-        
-      >
         <IonSearchbar
           placeholder={"Search for a word"}
-          onIonChange={e => this.searchWords(e.detail.value ?? '')}
-        />
-      </IonToolbar>
-      {this.state.searchOptions.searching && <IonProgressBar type="indeterminate" />}
-      
-      <div>
-        {this.state.status === ApiCallStatus.SUCCESS &&
-          this.state.words.length > 0 && 
-              <> 
-                {words.map((word, i) => {
-                  return (
-                    <Word
-                      key={i}
-                      id={word.id}
-                      name={word.name}
-                      meaning={word.meaning}
-                      sentences={word.sentences}
-                      synonyms={word.synonyms}
-                      tags={word.tags}
-                      types={word.types}
-                      audioHandler={this.audioHandler}
-                      audio={this.state.audio}
-                      handleDeleteWord={this.deleteWordHandler}
-                      {...this.props}
-                    />
-                  )
-                })}
-                <IonInfiniteScroll
-                  onIonInfinite={this.loadData}
-                  threshold="50px"
-                  disabled={this.state.infiniteDisabled}
-                >
-                  <IonInfiniteScrollContent
-                    loadingSpinner="bubbles"
-                    loadingText="Loading more words..."
-                  />
-                </IonInfiniteScroll>
-              </>
-        }
-        {this.state.status === ApiCallStatus.SUCCESS && this.state.words.length === 0
-          && <NoWordFound />
-        }
-      </div>
-
+          onIonFocus={this.searchModalHandler}
+        ></IonSearchbar>
+        <SearchModal
+          showModal={this.state.showSearchModal}
+          modalHandler={this.searchModalHandler}
+        ></SearchModal>
+        {this.state.status === ApiCallStatus.SUCCESS && (
+          <> 
+            {words.map((word) => {
+              return (
+                <Word
+                  id={word.id}
+                  name={word.name}
+                  meaning={word.meaning}
+                  sentences={word.sentences}
+                  synonyms={word.synonyms}
+                  tags={word.tags}
+                  types={word.types}
+                  {...this.props}
+                ></Word>
+              );
+            })}
+        <IonInfiniteScroll
+          onIonInfinite={this.loadData}
+          threshold="50px"
+          disabled={this.state.infiniteDisabled}
+        >
+          <IonInfiniteScrollContent
+            loadingSpinner="bubbles"
+            loadingText="Loading more words..."
+          ></IonInfiniteScrollContent>
+        </IonInfiniteScroll>
+          </>
+        )}
         {(this.state.status === ApiCallStatus.PROCESSING || this.state.status === ApiCallStatus.FAIL) && (
           <>
             {[1, 1, 1, 1, 1].map((x, i) => {
               return (
-                <WordSkeletonLoading key={i} />
+                <WordSkeletonLoading />
               );
             })}
             <IonToast isOpen={this.state.status === ApiCallStatus.FAIL} color={"danger"} duration={500} message={"Unable to load words"} onDidDismiss={() => {}} />

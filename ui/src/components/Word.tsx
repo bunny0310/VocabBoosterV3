@@ -1,5 +1,5 @@
-import React, { MouseEventHandler, ReactDOM, useState, useEffect } from "react";
-import { WordModel, WordTypeDescriptions } from "../api_clients/WordsApiClient";
+import React, { MouseEventHandler, ReactDOM } from "react";
+import { WordModel } from "../api_clients/WordsApiClient";
 import {
   IonButton,
   IonButtons,
@@ -47,11 +47,6 @@ enum WordViewOption {
   Types,
 }
 
-interface DeleteOptions {
-  id?: string;
-  isDeletable: boolean;
-}
-
 interface WordState {
   selectedWordViewOption: WordViewOption;
   information: string;
@@ -59,15 +54,10 @@ interface WordState {
     show: boolean,
     event: any
   };
-  showPlayFailToast: boolean;
-  deleteOptions: DeleteOptions;
+  showPlayFailToast: boolean
 }
 
-interface WordProps extends WordModel, RouteComponentProps {
-  audio?: HTMLAudioElement
-  audioHandler: (audio?: HTMLAudioElement) => void
-  handleDeleteWord: (id: string) => Promise<boolean>
-}
+interface WordProps extends WordModel, RouteComponentProps {}
 
 export class Word extends React.Component<WordProps, WordState> {
   constructor(props: WordProps) {
@@ -79,10 +69,7 @@ export class Word extends React.Component<WordProps, WordState> {
         show: false,
         event: undefined
       },
-      showPlayFailToast: false,
-      deleteOptions: {
-        isDeletable: false
-      }
+      showPlayFailToast: false
     };
   }
 
@@ -98,7 +85,7 @@ export class Word extends React.Component<WordProps, WordState> {
         informationArr = this.props.tags;
         break;
       case WordViewOption.Types:
-        informationArr = this.props.types.map(type => WordTypeDescriptions[type]);
+        informationArr = this.props.types;
         break;
       default:
         informationArr = [];
@@ -127,15 +114,10 @@ export class Word extends React.Component<WordProps, WordState> {
       .join(". ");
   };
 
-  // TODO Prevent audio from playing if audio is already playing
   play = (): void => {
-    const audio = this.props.audio
-    if(!audio || (audio && (audio.duration <= 0 || audio.paused))) {
-      const newAudio = this.textToSpeechApiClient.convertTextToSpeech(this.props.name, () => this.setState({
-        showPlayFailToast: true,
-      }))
-      this.props.audioHandler(newAudio)
-    }
+    const played = this.textToSpeechApiClient.convertTextToSpeech(this.props.name, () => this.setState({
+      showPlayFailToast: true,
+    }))
   }
 
   render(): React.ReactNode {
@@ -189,11 +171,7 @@ export class Word extends React.Component<WordProps, WordState> {
                       popoveroptions: {
                         ...this.state.popoveroptions,
                         show: false,
-                      },
-                      deleteOptions: {
-                        id: undefined,
-                        isDeletable: false
-                      },
+                      }
                     }, () => this.props.history.push(`/editword/${this.props.id}`))
                     
                   }
@@ -201,34 +179,9 @@ export class Word extends React.Component<WordProps, WordState> {
                     <IonIcon color={"primary"} icon={pencilOutline} />
                     Edit
                   </IonItem>
-                  <IonItem
-                  
-                    onClick={() => {
-                      if (this.state.deleteOptions.id != null && this.state.deleteOptions.isDeletable) {
-                        this.props.handleDeleteWord(this.props.id!)
-                        this.setState({
-                          ...this.state,
-                          popoveroptions: {
-                            ...this.state.popoveroptions,
-                            show: false,
-                          },
-                          deleteOptions: {
-                            id: undefined,
-                            isDeletable: false
-                          }
-                        });
-                      } else {
-                        this.setState({
-                          deleteOptions: {
-                            id: this.props.id,
-                            isDeletable: true
-                          }
-                        })
-                      }
-                    }
-                  }>
+                  <IonItem>
                     <IonIcon color={"danger"} icon={trashOutline} />
-                    Delete {this.state.deleteOptions.id != null && this.state.deleteOptions.isDeletable && <span style={{fontSize: "12px", color: "#ff0000"}}>(Click Again to Confirm)</span>}
+                    Delete
                   </IonItem>
                 </IonList>
             </IonPopover>
@@ -239,56 +192,71 @@ export class Word extends React.Component<WordProps, WordState> {
                   this.state.selectedWordViewOption !== WordViewOption.Tags
                 }
                 color={"primary"}
-                onClick={() => {
-                  this.state.selectedWordViewOption === WordViewOption.Tags ?
-                  this.selectWordViewOption(WordViewOption.None) :
-                  this.selectWordViewOption(WordViewOption.Tags)
-                }}
               >
                 <IonIcon icon={pricetag} />
-                <IonLabel>
+                <IonLabel
+                  onClick={() => this.selectWordViewOption(WordViewOption.Tags)}
+                >
                   Tags
                 </IonLabel>
+                <IonIcon
+                  style={{
+                    display: styleOptionSelected(WordViewOption.Tags),
+                  }}
+                  icon={closeCircleOutline}
+                  onClick={() => this.selectWordViewOption(WordViewOption.None)}
+                />
               </IonChip>
               <IonChip
                 outline={
                   this.state.selectedWordViewOption !== WordViewOption.Synonyms
                 }
                 color={"primary"}
-                onClick={() => {
-                  this.state.selectedWordViewOption === WordViewOption.Synonyms ?
-                  this.selectWordViewOption(WordViewOption.None) :
-                  this.selectWordViewOption(WordViewOption.Synonyms)
-                }}
               >
                 <IonIcon icon={repeat} color={"primary"} />
-                <IonLabel>
+                <IonLabel
+                  onClick={() =>
+                    this.selectWordViewOption(WordViewOption.Synonyms)
+                  }
+                >
                   Synonyms
                 </IonLabel>
+                <IonIcon
+                  icon={closeCircleOutline}
+                  style={{
+                    display: styleOptionSelected(WordViewOption.Synonyms),
+                  }}
+                  onClick={() => this.selectWordViewOption(WordViewOption.None)}
+                />
               </IonChip>
               <IonChip
                 outline={
                   this.state.selectedWordViewOption !== WordViewOption.Types
                 }
                 color={"primary"}
-                onClick={() => {
-                  this.state.selectedWordViewOption === WordViewOption.Types ?
-                  this.selectWordViewOption(WordViewOption.None) :
-                  this.selectWordViewOption(WordViewOption.Types)
-                }}
               >
                 <IonIcon icon={layers} color={"primary"} />
-                <IonLabel>
+                <IonLabel
+                  onClick={() =>
+                    this.selectWordViewOption(WordViewOption.Types)
+                  }
+                >
                   Types
                 </IonLabel>
+                <IonIcon
+                  icon={closeCircleOutline}
+                  onClick={() => this.selectWordViewOption(WordViewOption.None)}
+                  style={{
+                    display: styleOptionSelected(WordViewOption.Types),
+                  }}
+                />
               </IonChip>
             </IonCardTitle>
           </IonCardHeader>
           <IonCardContent>
             <IonList>
-              {this.props.sentences.map((sentence, i) => (
+              {this.props.sentences.map((sentence) => (
                 <IonItem
-                  key={i}
                   style={{
                     "--border-color": "blue",
                   }}
