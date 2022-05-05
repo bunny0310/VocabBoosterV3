@@ -103,7 +103,7 @@ for(const word of words) {
         ...word,
         types: mappedTypes,
         "_id": {"$oid": new ObjectID().toString()},
-        user: {"$oid":"626f1aa4a722baa33988c0d8"},
+        user: {"$oid":"5ff6591e5acc974c5ed3f1a6"},
         createdAt: {"$date": date},
         updatedAt: {"$date": date},
     }
@@ -114,7 +114,7 @@ let bigString = ''
 for(const word of morphedWords) {
     bigString += JSON.stringify(word)
 }
-writeFile('./morphedWords.json', bigString, () => {
+writeFile('./data/words.json', bigString, () => {
 
 })
 
