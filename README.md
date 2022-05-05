@@ -4,8 +4,9 @@ A cross platform application that allows users to keep track of their words and 
 ### Requirements
 1. .NET Core
 2. dotnet CLI
-3. Mongo DB (running on port 27017)
-4. NPM
+3. Mongo DB Server(running on port 27017)
+4. Mongo DB database tools
+5. NPM
 
 ### How to build locally
 
