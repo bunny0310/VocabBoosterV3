@@ -15,14 +15,12 @@ namespace core.Controllers
             if (model.Exception != null) 
             {
                 if (model.Exception is BadHttpRequestException) {
-                    return BadRequest();
+                    return BadRequest(model.Exception.Data);
                 }
                 if (model.Exception is UnauthorizedAccessException) {
-                    Console.WriteLine("ishaan");
                     return Unauthorized();
                 }
             } 
-            Console.WriteLine("ishaan");
             return StatusCode(500, model.Exception.Message);
         }
     }

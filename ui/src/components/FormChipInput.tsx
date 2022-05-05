@@ -2,17 +2,19 @@ import { InputChangeEventDetail, IonButton, IonCard, IonCardContent, IonCardHead
 import { closeCircle, pencil } from "ionicons/icons";
 import React from "react";
 import './FormListInput.css';
+import './inputs.css';
 
 export interface FormChipInputProps {
     label: string;
     onSentenceChipUpdate?: (data: string[]) => void;
     onBlur?: (e: CustomEvent<FocusEvent>) => void;
-    onFocus?: (e: CustomEvent<FocusEvent>) => void;
     disabled?: boolean;
     placeholder?: string;
     isValid?: boolean;
+    name?: string
     values?: string[]
-    validationMessage?: string;
+    touched: boolean
+    error?: string
 }
 
 interface IEditItem {
@@ -28,9 +30,7 @@ enum EditItemOrInput {
 export const FormChipInput = (props: FormChipInputProps) => {
     const [values, setValues] = React.useState<string[]>(props.values ?? []);
     const [value, setValue] = React.useState<string>('');
-    const [touched, setTouched] = React.useState<boolean>(false);
     const [editableArr, setEditableArr] = React.useState<IEditItem[]>([]);
-    const isValid = props.isValid ?? true;
 
     React.useEffect(() => {
         setValues(props.values ?? []);
@@ -48,7 +48,6 @@ export const FormChipInput = (props: FormChipInputProps) => {
     }, [props.values])
 
     const keyPressHandler = (e: any, editItemOrInput: EditItemOrInput, editItemIndex?: number) => {
-        !touched && setTouched(true);
 
         let inputValue = value
         if (editItemOrInput === EditItemOrInput.Item && editItemIndex != null) {
@@ -76,15 +75,12 @@ export const FormChipInput = (props: FormChipInputProps) => {
     }
 
     const editHandler = (i: number, e: any) => {
-        !touched && setTouched(true);
-
         const newEditableArr = [...editableArr];
         newEditableArr[i].editable = true;
         setEditableArr(newEditableArr)
     }
 
     const removeHandler = (i: number, e: any) => {
-                !touched && setTouched(true);
                 const newValues = [...values];
                 newValues.splice(i, 1)
                 setValues(newValues);
@@ -121,60 +117,61 @@ export const FormChipInput = (props: FormChipInputProps) => {
 
     return (
         <>
-            {values.length !== 0 && <IonCard>
-                <IonCardContent>
-                    <IonList>
-                        {values.map((value, i) => {return (
-                            <>
-                                {editableArr[i] && !editableArr[i].editable 
-                                && <IonItem key={i} className={`listBlock`}>
-                                        {value}
-                                        <IonIcon 
-                                            color={'primary'}
-                                            icon={pencil} 
-                                            size={'small'} 
-                                            slot="end" 
-                                            onClick={(e: any) => editHandler(i, e)}
-                                            title={`edit`}
-                                        /> 
-                                        <IonIcon 
-                                            color={'danger'}
-                                            icon={closeCircle} 
-                                            size={'small'} 
-                                            slot="end" 
-                                            onClick={(e: any) => removeHandler(i, e)}
-                                            title={`delete`}
-                                        />       
-                                    </IonItem>
-                                }
-                                {editableArr[i] && editableArr[i].editable
-                                && <IonInput
-                                        className={"formField"}
-                                        onKeyUp={e => keyPressHandler(e, EditItemOrInput.Item, i)}
-                                        onIonChange={e => onChangehandler(e, EditItemOrInput.Item, i)} 
-                                        placeholder={'Enter a value'}
-                                        value={editableArr[i].value}
-                                    />
-                                }
-                            </>)}
-                )}
-                    </IonList>
-                </IonCardContent>
-            </IonCard>}
-            
-            <IonItem className={"formField"}>
-                {(isValid || !touched) && <IonLabel position="stacked" color={"dark"}>{props.label}</IonLabel>}
-                { !isValid && touched && <IonNote color={'danger'}>{props.validationMessage}</IonNote>}
-                <IonInput
-                    className={"formField"}
-                    onKeyUp={e => keyPressHandler(e, EditItemOrInput.Input)}
-                    onIonChange={e => onChangehandler(e, EditItemOrInput.Input)} 
-                    onIonBlur={(e: CustomEvent<FocusEvent>) => {props.onBlur && props.onBlur(e)}}
-                    onIonFocus={(e: CustomEvent<FocusEvent>) => {props.onFocus && props.onFocus(e)}}
-                    placeholder={props.placeholder}
-                    value={value}
-                />
-            </IonItem> 
+            <IonLabel>
+                {props.label}
+                {values.length !== 0 && <IonCard>
+                    <IonCardContent>
+                        <IonList>
+                            {values.map((value, i) => {return (
+                                <React.Fragment key={i}>
+                                    {editableArr[i] && !editableArr[i].editable 
+                                    && <IonItem key={i} className={`listBlock`}>
+                                            {value}
+                                            <IonIcon 
+                                                color={'primary'}
+                                                icon={pencil} 
+                                                size={'small'} 
+                                                slot="end" 
+                                                onClick={(e: any) => editHandler(i, e)}
+                                                title={`edit`}
+                                            /> 
+                                            <IonIcon 
+                                                color={'danger'}
+                                                icon={closeCircle} 
+                                                size={'small'} 
+                                                slot="end" 
+                                                onClick={(e: any) => removeHandler(i, e)}
+                                                title={`delete`}
+                                            />       
+                                        </IonItem>
+                                    }
+                                    {editableArr[i] && editableArr[i].editable
+                                    && <IonInput
+                                            className={"formField"}
+                                            onKeyUp={e => keyPressHandler(e, EditItemOrInput.Item, i)}
+                                            onIonChange={e => onChangehandler(e, EditItemOrInput.Item, i)} 
+                                            placeholder={'Enter a value'}
+                                            value={editableArr[i].value}
+                                        />
+                                    }
+                                </React.Fragment>)}
+                    )}
+                        </IonList>
+                    </IonCardContent>
+                </IonCard>}
+                <IonItem 
+                    className={`formField ${props.touched && props.error ? 'error': ''}`}
+                >
+                    <IonInput
+                        className={"formField"}
+                        name={props.name}
+                        onKeyUp={e => keyPressHandler(e, EditItemOrInput.Input)}
+                        onIonChange={e => onChangehandler(e, EditItemOrInput.Input)} 
+                        onIonBlur={(e: CustomEvent<FocusEvent>) => {props.onBlur && props.onBlur(e)}}
+                        placeholder={props.placeholder}
+                    />
+                </IonItem>   
+            </IonLabel> 
         </>
     )
 }

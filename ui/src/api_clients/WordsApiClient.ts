@@ -3,14 +3,39 @@ import "reflect-metadata";
 import { IWordsApiClient } from './IWordsApiClient'
 import { Storage } from '@capacitor/storage';
 import axios from "axios";
-import { SearchWordsApiRequest } from "../components/SearchModal";
+import { SearchWordsByNameApiRequest } from "../pages/Words";
 import { jwtKeyName } from "./AuthApiClient";
 import { Word } from "../components/Word";
 import { _messageBus } from "../App";
 import { Messages } from "../services/MessageBus";
 import { BaseApiClient } from "./BaseApiClient";
 
-const baseUrl = `${process.env.NODE_ENV === 'production' ? 'https://vocabbooster-words.herokuapp.com/Words' : 'https://localhost:5001/Words'}`;
+let baseUrl = `${process.env.NODE_ENV === 'production' ? 'https://vocabbooster-words.herokuapp.com/Words' : 'http://localhost:5001/Words'}`;
+if (process.env.REACT_APP_ENV === 'qa') {
+    baseUrl='https://qa-vb-words.herokuapp.com/Words'
+}
+
+export enum WordType {
+    Adverb,
+    Adjective,
+    Excerpt,
+    Expression,
+    Noun,
+    Verb,
+    Metaphor,
+    PhrasalVerb
+}
+
+export const WordTypeDescriptions = {
+    [WordType.Adverb]: "Adverb",
+    [WordType.Adjective]: "Adjective",
+    [WordType.Excerpt]: "Excerpt",
+    [WordType.Expression]: "Expression",
+    [WordType.Noun]: "Noun",
+    [WordType.Verb]: "Verb",
+    [WordType.Metaphor]: "Metaphor",
+    [WordType.PhrasalVerb]: "Phrasal Verb",
+}
 
 export class WordModel {
     id?: string = undefined
@@ -19,7 +44,9 @@ export class WordModel {
     sentences: string[] = [];
     synonyms: string[] = [];
     tags: string[] = [];
-    types: string[] = [];
+    types: WordType[] = [];
+    createdAt?: Date | string;
+    updatedAt?: Date | string;
 } 
 
 export interface SearchWordsQueryModel {
@@ -60,14 +87,28 @@ export interface ApiOutcome<T> {
 
 @injectable()
 export class WordsApiClient extends BaseApiClient implements IWordsApiClient{
-    getWords = async (limit: number, offset: number): Promise<ApiOutcome<WordModel[] | undefined>> => {
+    getWords = async (limit: number, offset: number, filter?: SearchWordsByNameApiRequest): Promise<ApiOutcome<WordModel[] | undefined>> => {
             const queryModel: SearchWordsQueryModel = {
                 ...defaultSearchWordsQueryModel,
                 limit,
                 offset
+            }
+            if (filter) {
+                queryModel.filter = true
+                queryModel.searchByName = true
+                queryModel.q = filter.searchValue
             }            
             const outcome = await this.getApi<WordModel[] | undefined>(this.generateWordsQuery(queryModel));
             return outcome;
+    }
+
+    getWordsRange = async (type: WordType, startDate: Date, endDate: Date): Promise<ApiOutcome<WordModel[] | undefined>> => {
+        let url = `${baseUrl}/range`
+        url += `?type=${type}`
+        url += `&startDate=${encodeURIComponent(startDate.toISOString())}`
+        url += `&endDate=${encodeURIComponent(endDate.toISOString())}`
+        const outcome = await this.getApi<WordModel[] | undefined>(url)
+        return outcome
     }
 
     getWord = async (id: string): Promise<ApiOutcome<WordModel | undefined>> => {
@@ -85,11 +126,11 @@ export class WordsApiClient extends BaseApiClient implements IWordsApiClient{
 
     private generateWordsQuery = (searchWordsQueryModel: SearchWordsQueryModel) => {
         const {filter, limit, offset, searchByName, searchByMeaning, searchBySentences, searchBySynonyms, searchByTags, q} = searchWordsQueryModel
-        return `${baseUrl}?limit=${limit}&offset=${offset}&filter=${filter}&searchByName=${searchByName}&searchByMeaning=${searchByMeaning}&searchBySentences=${searchBySentences}&searchBySynonyms=${searchBySynonyms}&searchByTags=${searchByTags}&q=${q}`
+        return `${baseUrl}?limit=${limit}&offset=${offset}&filter=${filter}&searchByName=${searchByName}&searchByMeaning=${searchByMeaning}&searchBySentences=${searchBySentences}&searchBySynonyms=${searchBySynonyms}&searchByTags=${searchByTags}&searchValue=${q}`
     }
     
-    searchWordsNameOnly = async (postRequest: SearchWordsApiRequest) => {
-        const outcome = await this.postApi<SearchWordsApiRequest, SearchWordResponse[] | undefined>(`${baseUrl}/SearchWordsNameOnly`, postRequest);
+    searchWordsNameOnly = async (postRequest: SearchWordsByNameApiRequest) => {
+        const outcome = await this.postApi<SearchWordsByNameApiRequest, SearchWordResponse[] | undefined>(`${baseUrl}/SearchWordsNameOnly`, postRequest);
         return outcome;
     }
 
@@ -114,4 +155,15 @@ export class WordsApiClient extends BaseApiClient implements IWordsApiClient{
         };
         return result;
     };
+
+    deleteWord = async (id: string): Promise<ApiOutcome<boolean>> => {
+        const outcome = await this.deleteApi<boolean>(`${baseUrl}/${id}`);
+        const result = {
+            code: outcome.code,
+            isSuccessful: outcome.isSuccessful,
+            message: outcome.message,
+            data: outcome.data != null ? outcome.data : false
+        }
+        return result;
+    }
 }

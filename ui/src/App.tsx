@@ -1,4 +1,4 @@
-import { Redirect, Route, useLocation } from 'react-router-dom';
+import { Redirect, Route, RouteComponentProps, useLocation } from 'react-router-dom';
 import {
   IonApp,
   IonButton,
@@ -47,9 +47,14 @@ import { IAuthApiClient } from './api_clients/IAuthApiClient';
 import { Messages } from './services/MessageBus';
 import { LoginForm } from './components/LoginForm';
 import { Login } from './pages/Login';
+import { RegisterForm} from './components/RegisterForm';
 import { AuthContext } from './pages/Contexts/AuthContext';
 import { Storage } from '@capacitor/storage';
 import { jwtKeyName } from './api_clients/AuthApiClient';
+import { Register } from './pages/Register';
+import { RedirectComponent } from './components/RedirectComponent';
+import { DataAnalytics } from './pages/DataAnalytics';
+import { parseJWT } from './utils/JWTParser';
 
 setupIonicReact();
 
@@ -60,6 +65,7 @@ export const _messageBus = container.get<IMessageBus>("IMessageBus");
 const App: React.FC = () => {
   const [auth, setAuth] = React.useState<boolean>(_authApi.authorize());
   const [showModal, setShowModal] = React.useState<boolean>(false);
+  const [firstName, setFirstName] = React.useState<string>();
 
   const logout = async () => {
     Storage.remove({"key": jwtKeyName});
@@ -67,12 +73,29 @@ const App: React.FC = () => {
   }
 
   React.useEffect(() => {
-    _authApi.authorize();
-    _messageBus.on(Messages.Login, () => setAuth(true));
-    _messageBus.on(Messages.Logout, async () => logout());
-  }, [])
 
-  return (
+    const configureFirstName = async () => {
+      Storage.get({"key": jwtKeyName})
+        .then(res => {
+          const token = res.value
+          if (token) {
+            const parsedJWT = parseJWT(token)
+            const { FirstName, email } = JSON.parse(parsedJWT.data) ?? {}
+            setFirstName(FirstName)
+          }
+        })
+    }
+
+    _authApi.authorize();
+
+    _messageBus.on(Messages.Login, () => {
+      setAuth(true)
+      configureFirstName()
+    });
+    _messageBus.on(Messages.Logout, async () => logout());
+  }, [auth])
+
+  return ( <>
     <AuthContext.Provider value={auth}>
       <IonApp>
         <IonHeader>
@@ -81,6 +104,7 @@ const App: React.FC = () => {
               <img src={"assets/logo.png"} className={"logo"} alt="logo"></img>
             </IonTitle>
             {auth && <IonButtons slot={"end"}>
+                  Welcome {firstName}
                   <IonItem lines={"none"}>
                     <IonButton size={"large"} onClick={() => setShowModal(!showModal)}>
                       <IonIcon icon={menuOutline} />
@@ -89,7 +113,7 @@ const App: React.FC = () => {
             </IonButtons>}
           </IonToolbar>
         </IonHeader>
-        <IonContent>
+        <IonContent className='customBg'>
           <IonReactRouter>
               <IonTabs>
                 <IonRouterOutlet>
@@ -107,7 +131,27 @@ const App: React.FC = () => {
                           <Redirect to="/login"></Redirect>
                       </Route>
                     }
-                    <Route path="/tab3" />
+                    {
+                      auth 
+                      ? <Route exact path="/tab3" component={DataAnalytics} />
+                      : <Route exact path="/tab3">
+                          <Redirect to="/login"></Redirect>
+                      </Route>
+                    }
+                    {/* {
+                      auth 
+                      ? <Route exact path="/tab3" component={DataAnalytics} />
+                      : <Route exact path="/tab3">
+                          <Redirect to="/login"></Redirect>
+                      </Route>
+                    }                     */}
+                    {
+                      auth 
+                      ? <Route exact path="/tab1" component={Words} />
+                      : <Route exact path="/tab1">
+                          <Redirect to="/login"></Redirect>
+                      </Route>
+                    }
                     {
                       auth 
                       ? <Route exact path="/editword/:id" component={AddEditWordFormHoc} />
@@ -122,6 +166,7 @@ const App: React.FC = () => {
                       ? <Route path="/login" component={Login} />
                       : <Route path="/login"><Redirect to="/tab1" /></Route>
                     } */}
+                    <Route path="/register" component={(routerProps: RouteComponentProps) => <Register {...routerProps} />} />
                     <Route path="/login" component={Login} />
                   <Route>
                     <Page404 
@@ -169,7 +214,8 @@ const App: React.FC = () => {
           </IonModal>
         </IonContent>
       </IonApp>
-    </AuthContext.Provider>  
+    </AuthContext.Provider>
+    </>
     );
   }
 

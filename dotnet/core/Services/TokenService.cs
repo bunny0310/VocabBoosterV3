@@ -4,17 +4,17 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using core.Models.Response;
-using core.Models.Request;
+using System.Text.Json;
 
 namespace core.Services
 {
     public class TokenService : ITokenService
     {
         private const double EXPIRY_DURATION_MINUTES = 30;
-        public ExecutionOutcome<string> BuildToken(string key, string issuer, AuthenticationRequest user) {
+        public ExecutionOutcome<string> BuildToken(string key, string issuer, UserDTO user) {
             try {
                 var claims = new[] {
-                    new Claim(ClaimTypes.Name, user.Email)
+                    new Claim("data", JsonSerializer.Serialize(user))
                 };
 
                 var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));        

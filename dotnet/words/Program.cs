@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using core;
+using core.Services;
+using core.Middlewares;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +14,7 @@ DotEnv.Load(dotenv);
 // Add services to the container.
 
 builder.Services.AddScoped<ServiceFactory>();
+builder.Services.AddScoped<IIdentityService, IdentityService>();
 
 builder.Services.AddAuthentication(o =>
 {
@@ -97,9 +100,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 
 app.UseCors("corsOrigins");
+
+app.UseMiddleware<JWTMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();
