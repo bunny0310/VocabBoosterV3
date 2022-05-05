@@ -5,7 +5,7 @@ A cross platform application that allows users to keep track of their words and 
 1. .NET Core
 2. dotnet CLI
 3. Mongo DB Server(running on port 27017)
-4. Mongo DB database tools
+4. Mongo DB database tools (Make sure to add the install directory to your system's PATH environment variable if you are using Windows) - [Installation](https://www.mongodb.com/docs/database-tools/installation/installation-windows/#installation)
 5. NPM
 
 ### How to build locally
