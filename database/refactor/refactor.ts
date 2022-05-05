@@ -1,7 +1,8 @@
 import { writeFile } from "fs"
+import { ObjectID } from "bson"
 
-const words = [
-    {"_id":{"$oid":"621867548f165cbc1781a549"},"createdAt":{"$date":"2022-02-25T05:21:24.559Z"},"updatedAt":{"$date":"2022-02-25T05:22:35.181Z"},"name":"Liquify into puddle on the floor","user":null,"meaning":"Feel overwhelmed due to a strong, often nice, emotion","synonyms":["n/a"],"tags":["Meet You in the Middle"],"sentences":["His velvety chocolate sex voice nearly liquifies me into a puddle on the floor."],"types":["Metaphor"],"__v":null},
+const words = new Array(100).fill([
+    {"_id":{"$oid":"621867548f165cbc1781a549"},"createdAt":{"$date":"c"},"updatedAt":{"$date":"2022-02-25T05:22:35.181Z"},"name":"Liquify into puddle on the floor","user":null,"meaning":"Feel overwhelmed due to a strong, often nice, emotion","synonyms":["n/a"],"tags":["Meet You in the Middle"],"sentences":["His velvety chocolate sex voice nearly liquifies me into a puddle on the floor."],"types":["Metaphor"],"__v":null},
     {"_id":{"$oid":"621860958f165cbc1781a548"},"createdAt":{"$date":"2022-02-25T04:52:37.951Z"},"updatedAt":{"$date":"2022-02-25T04:52:37.951Z"},"name":"Charged","user":null,"meaning":"Filled with excitement, tension or emotion","synonyms":["Intense"],"tags":["Meet You in the Middle"],"sentences":["The highly charged atmosphere created by the boycott.","My mom breaks the charged silence by asking him about his favorite food item.","We stare across the desk at each other in charged silence."],"types":["Adjective"],"__v":null},
     {"_id":{"$oid":"62159fae5d53a5356814cd5a"},"createdAt":{"$date":"2022-02-23T02:45:01.991Z"},"updatedAt":{"$date":"2022-02-23T02:45:01.991Z"},"name":"Cough Up","user":null,"meaning":"Give something reluctantly, especially money or other information that is due or required","synonyms":["Fork over","Pay up","Shell out"],"tags":["Reddit","Informal"],"sentences":["Should I cough up the 200$ or can I have my cake and eat it too?","He coughed up the monthly subscription fee to continue with the service."],"types":["Phrasal Verb"],"__v":null},
     {"_id":{"$oid":"62153bbb6375451e3780c334"},"createdAt":{"$date":"2022-02-22T19:38:35.589Z"},"updatedAt":{"$date":"2022-02-22T19:38:35.589Z"},"name":"Bustling around","user":null,"meaning":"To move in a hurried way because often the person is busy","synonyms":["Scuttle"],"tags":["Meet You in the Middle"],"sentences":["Bustling around the kitchen.","Because her relatives are coming to visit, Annabelle is bustling around the house cleaning the whole house."],"types":["Expression"],"__v":null},
@@ -31,20 +32,33 @@ const words = [
     {"_id":{"$oid":"61f30f2893671cccc094dcc0"},"createdAt":{"$date":"2022-01-27T21:31:20.369Z"},"updatedAt":{"$date":"2022-01-27T21:31:20.369Z"},"name":"Squirrel away","user":null,"meaning":"To put something in a safe or secret place especially so that it can be kept for future use","synonyms":["n/a"],"tags":["Let the Sparks Fly"],"sentences":["Most of his money is squirelled away somewhere.","As I flip the page and squirrel away all of my memories and experiences, I'd like to wish everyone a happy new year!"],"types":["Phrasal Verb"],"__v":null},
     {"_id":{"$oid":"61f0b3c78e3d1637d6e1337f"},"createdAt":{"$date":"2022-01-26T02:36:55.92Z"},"updatedAt":{"$date":"2022-01-26T02:36:55.92Z"},"name":"Take the wind out of someone's sails","user":null,"meaning":"To cause someone to lose confidence or energy","synonyms":["n/a"],"tags":["Meet You in the Middle"],"sentences":["The team's star player was injured and it really took the wind out of their sails.","I got into an accident 4 years ago and it took the wind out of my sails."],"types":["Expression"],"__v":null},
     {"_id":{"$oid":"61f0b29b8e3d1637d6e1337e"},"createdAt":{"$date":"2022-01-26T02:31:55.184Z"},"updatedAt":{"$date":"2022-01-26T02:31:55.184Z"},"name":"Rain on someone's parade","user":null,"meaning":"To spoil someone's pleasure","synonyms":["n/a"],"tags":["Hulu"],"sentences":["I don't mean to rain on your parade but I have some bad news."],"types":["Expression"],"__v":null}
-]
+]).flat()
+
+function pad(n: number) {
+    return (n < 10) ? ("0" + n) : n;
+}
+
+function millisecondPad(n: number) {
+    if (n < 10) {
+        return `00${n}`;
+    }
+    if (n < 100) {
+        return `0${n}`
+    }
+    return n
+}
 
 const randomDate = () => {
 
-    return 0;
-}
+    const year = 2022;
+    const month = Math.floor(Math.random() * 5) + 1;
+    const day = Math.floor(Math.random() * 28) + 1;
+    const hour = Math.floor(Math.random() * 23) + 1;
+    const minute = Math.floor(Math.random() * 59) + 1;
+    const second = Math.floor(Math.random() * 59) + 1;
+    const msecond = Math.floor(Math.random() * 999) + 1;
 
-// for each word, generate a random date
-// add random date to list
-// use list to altar date field before writing to file
-const morphedDates = [];
-for (const word of words) {
-
-    
+    return `${pad(year)}-${pad(month)}-${pad(day)}T${pad(hour)}:${[pad(minute)]}:${pad(second)}.${millisecondPad(msecond)}Z`;
 }
 
 enum WordType {
@@ -84,10 +98,14 @@ for(const word of words) {
                 return -1
         }
     })
+    const date = randomDate()
     const morphedWord = {
         ...word,
         types: mappedTypes,
-        user: {"$oid":"5fef467bcb823fa32b020478"}
+        "_id": {"$oid": new ObjectID().toString()},
+        user: {"$oid":"626f1aa4a722baa33988c0d8"},
+        createdAt: {"$date": date},
+        updatedAt: {"$date": date},
     }
     morphedWords.push(morphedWord)
 }
