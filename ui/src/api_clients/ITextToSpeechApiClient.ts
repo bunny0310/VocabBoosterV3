@@ -1,3 +1,3 @@
 export interface ITextToSpeechApiClient {
-    convertTextToSpeech: (text: string, handler?: () => void) => HTMLAudioElement | undefined
+    convertTextToSpeech: (text: string, handler?: () => void) => void
 }

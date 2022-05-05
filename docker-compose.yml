@@ -1,18 +1,5 @@
 version: '3.3'
 services:
-
-  ui:
-    build:
-      context: ./ui
-    environment:
-      - REACT_APP_SPEECHTOTEXTKEY=${REACT_APP_SPEECHTOTEXTKEY}
-    volumes:
-      - ./ui/src:/app/src
-    ports:
-      - 3000:3000
-    networks:
-      - network
-      
   words:
     build:
       context: ./dotnet
@@ -22,11 +9,8 @@ services:
       - MongoDbName=${MongoDbName}
       - JwtKey=${JwtKey}
       - JwtIssuer=${JwtIssuer}
-    volumes:
-      - ./dotnet/words:/app
-      - ./dotnet/core:/core
     ports:
-      - 5001:5000
+      - 5001:5001
     networks:
       - network
   
@@ -39,11 +23,8 @@ services:
       - MongoDbName=${MongoDbName}
       - JwtKey=${JwtKey}
       - JwtIssuer=${JwtIssuer}
-    volumes:
-      - ./dotnet/auth:/app
-      - ./dotnet/core:/core
     ports:
-      - 5002:5000
+      - 5002:5001
     networks:
       - network
 
@@ -53,8 +34,6 @@ services:
       - MONGO_INITDB_DATABASE=db
     volumes:
       - ./database/data:/data/db
-      - ./database/scripts:/scripts
-    container_name: vb_mongo
     ports:
       - 5003:27017
     networks:

@@ -5,7 +5,6 @@ using core.Models.Response;
 using core.Controllers;
 using Microsoft.AspNetCore.Authorization;
 using core;
-using core.Services;
 
 namespace words.Controllers
 {
@@ -14,29 +13,17 @@ namespace words.Controllers
     public class WordsController : BaseController
     {
         private readonly ServiceFactory serviceFactory;
-        private readonly IIdentityService _identityService;
 
-        public WordsController(ServiceFactory serviceFactory, IIdentityService identityService)
+        public WordsController(ServiceFactory serviceFactory)
         {
             this.serviceFactory = serviceFactory;
-            this._identityService = identityService;
         }
-
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> Get([FromQuery] SearchWordsApiRequest requestBody, int limit = 5, int offset = 0)
+        public async Task<List<Word>> Get([FromQuery] SearchWordsApiRequest requestBody, int limit = 5, int offset = 0)
         {
-            Console.WriteLine(requestBody);
-            var outcome = await serviceFactory.WordsService().GetWords(limit, offset, requestBody);
-            return OkOrError(outcome);
-        }
-
-        [HttpGet("range")]
-        [Authorize]
-        public async Task<IActionResult> GetRange([FromQuery] WordRangeRequest requestBody)
-        {
-            var outcome = await serviceFactory.WordsService().GetWordsRange(requestBody.Type, requestBody.StartDateParsed.Value, requestBody.EndDateParsed.Value);
-            return OkOrError(outcome);
+            Console.WriteLine(ConfigurationVariables.JwtIssuer);
+            return await serviceFactory.WordsService().GetWords(limit, offset, requestBody);
         }
 
         [HttpGet("{id}")]
@@ -50,31 +37,22 @@ namespace words.Controllers
         [HttpPost]
         [Authorize]
         [Route("SearchWordsNameOnly")]
-        public async Task<IActionResult> SearchWordsNameOnly([FromBody] SearchWordsApiRequest requestBody)
+        public async Task<List<SearchWordResponse>> SearchWordsNameOnly([FromBody] SearchWordsApiRequest requestBody)
         {
-            var outcome = await serviceFactory.WordsService().SearchWordsNameOnly(requestBody);
-            return OkOrError(outcome);
+            var words = await serviceFactory.WordsService().SearchWordsNameOnly(requestBody);
+            return words;
         }
 
         [HttpPost]
-        [Authorize]
-        public async Task<IActionResult> PostWord([FromBody] Word body) {
-            var outcome = await serviceFactory.WordsService().AddWord(body);
-            return OkOrError(outcome);
+        public async Task<Word> PostWord([FromBody] Word body) {
+            var word = await serviceFactory.WordsService().AddWord(body);
+            return word;
         } 
 
         [HttpPut]
-        [Authorize]
         public async Task<IActionResult> EditWord([FromBody] Word body) {
             var outcome = await serviceFactory.WordsService().EditWord(body);
             return OkOrError(outcome);
         } 
-
-        [HttpDelete("{id}")]
-        [Authorize]
-        public async Task<IActionResult> DeleteWord(string id) {
-            var outcome = await serviceFactory.WordsService().DeleteWord(id);
-            return OkOrError(outcome);
-        }
     }
 }

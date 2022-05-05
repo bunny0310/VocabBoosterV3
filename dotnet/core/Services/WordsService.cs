@@ -5,57 +5,56 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using core.Models.Request;
 using core.Models.Response;
-using core.Repositories;
 using System.Linq;
 
 namespace core.Services
 {
     public class WordsService : IWordsService
     {
-        private readonly IWordsRepository _repository;
-        private readonly IIdentityService _identityService;
+        private readonly IMongoCollection<Word> _wordsCollection;
         private int totalCount = -1;
-
-        public WordsService(IWordsRepository repository, IIdentityService identityService)
+        public WordsService(
+            IOptions<VocabBoosterDatabaseSettings> vocabBoosterDatabaseSettings)
         {
-            _repository = repository;
-            _identityService = identityService;
+            var mongoClient = new MongoClient(
+                ConfigurationVariables.MongoConnectionString);
+
+            var mongoDatabase = mongoClient.GetDatabase(
+                ConfigurationVariables.MongoDb);
+
+            _wordsCollection = mongoDatabase.GetCollection<Word>("words");
         }
 
-        public async Task<ExecutionOutcome<List<Word>>> GetWords(int limit = 5, int offset = 0, SearchWordsApiRequest requestBody = null)
+        public async Task<List<Word>> GetWords(int limit = 5, int offset = 0, SearchWordsApiRequest requestBody = null)
         {
-            try
+            if (this.totalCount == -1)
             {
-                List<Word> words;
-                var userId = _identityService.GetUserId();
-
-                if (this.totalCount == -1)
-                {
-                    this.totalCount = await _repository.GetTotalCount(userId);
-                }
-                if (offset < 0)
-                {
-                    offset = 0;
-                }
-                if (offset + limit > this.totalCount)
-                {
-                    limit = this.totalCount - offset;
-                }
-
-                if (requestBody == null || (requestBody.Filter.HasValue && !requestBody.Filter.Value))
-                {
-                    words = await _repository.GetWords(userId, offset, limit, null);
-                }
-                else
-                {
-                    words = await _repository.GetWords(userId, offset, limit, GenerateSearchFilter(requestBody));
-                }
-                return new ExecutionOutcome<List<Word>>() { Data = words, IsSuccessful = true };
+                this.totalCount = (int)await _wordsCollection.EstimatedDocumentCountAsync(null);
             }
-            catch(Exception ex)
+            if (offset < 0)
             {
-                return new ExecutionOutcome<List<Word>>() { Exception = ex, IsSuccessful = false };
+                offset = 0;
             }
+            if (offset + limit > this.totalCount)
+            {
+                limit = this.totalCount - offset;
+            }
+
+            if (requestBody.Filter == null || (requestBody.Filter.HasValue && !requestBody.Filter.Value))
+            {
+                return await _wordsCollection
+                    .Find(word => true)
+                    .SortByDescending(word => word.CreatedAt)
+                    .Skip(offset)
+                    .Limit(limit)
+                    .ToListAsync();
+            }
+
+            return await _wordsCollection
+                .Find(GenerateSearchFilter(requestBody))
+                .Skip(offset)
+                .Limit(limit)
+                .ToListAsync();
         }
 
         public async Task<ExecutionOutcome<Word>> GetWord(string id) {
@@ -63,8 +62,7 @@ namespace core.Services
                 if (id.Length != 24) {
                     throw new BadHttpRequestException("Invalid Id");
                 }
-                var userId = _identityService.GetUserId();
-                var word = await _repository.GetWord(userId, id);
+                var word = await _wordsCollection.Find(word => word.Id != null && word.Id.Equals(id)).FirstOrDefaultAsync();
                 return new ExecutionOutcome<Word>(){ 
                         IsSuccessful = word != null, 
                         Exception = word == null ? new BadHttpRequestException("Word not found", 404) : null,
@@ -79,75 +77,43 @@ namespace core.Services
                  };
             }
         }
-        public async Task<ExecutionOutcome<bool>> DeleteWord(string id) {
-
-            try {
-                if (string.IsNullOrWhiteSpace(id) || id.Length != 24) {
-                
-                    throw new BadHttpRequestException("Invalid Id");
-                }
-
-                var userId = _identityService.GetUserId();
-                _repository.DeleteWord(userId, id);
-
-                return new ExecutionOutcome<bool>() { Data = true, IsSuccessful = true };
-            } catch (Exception ex) {
-                return new ExecutionOutcome<bool>() { Exception = ex, IsSuccessful = false };
-            }
-        }
-        public async Task<ExecutionOutcome<List<SearchWordResponse>>> SearchWordsNameOnly(SearchWordsApiRequest requestBody)
+        public async Task<List<SearchWordResponse>> SearchWordsNameOnly(SearchWordsApiRequest requestBody)
         {
-            try
+            var searchVal = requestBody.SearchValue;
+            if (searchVal.TrimStart().TrimEnd().Equals(""))
             {
-                var searchVal = requestBody.SearchValue;
-
-                if (searchVal.TrimStart().TrimEnd().Equals(""))
-                {
-                    return new ExecutionOutcome<List<SearchWordResponse>>(){ Data = new List<SearchWordResponse>(), IsSuccessful = true };
-                }
-
-                var filter = GenerateSearchFilter(requestBody);
-
-                var results = await _repository.GetWords(_identityService.GetUserId(), null, 6, filter);
-
-                var resultsStringOnly = results
-                .Select(w => new SearchWordResponse()
-                {
-                    Id = w.Id!,
-                    Name = w.Name
-                }).ToList();
-                return new ExecutionOutcome<List<SearchWordResponse>>() { Data = resultsStringOnly, IsSuccessful = true };
+                return new List<SearchWordResponse>();
             }
-            catch(Exception ex)
-            {
-                return new ExecutionOutcome<List<SearchWordResponse>>() { Exception = ex, IsSuccessful = false };
-            }
+
+            var filter = GenerateSearchFilter(requestBody);
+
+            var results = await _wordsCollection
+                .Find(filter)
+                .Limit(6)
+                .ToListAsync();
+            var resultsStringOnly = results
+            .Select(w => new SearchWordResponse() {
+                Id = w.Id!,
+                Name = w.Name
+            }).ToList();
+            return resultsStringOnly;
         }
 
-        public async Task<ExecutionOutcome<Word>> AddWord(Word request) {
-            try
-            {
-                var word = new Word()
-                {
-                    UserId = _identityService.GetUserId(),
-                    Name = request.Name,
-                    Meaning = request.Meaning,
-                    Sentences = request.Sentences,
-                    Synonyms = request.Synonyms,
-                    Tags = request.Tags,
-                    Types = request.Types,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow,
-                };
+        public async Task<Word> AddWord(Word request) {
+            var word = new Word() {
+                Name = request.Name,
+                Meaning = request.Meaning,
+                Sentences = request.Sentences,
+                Synonyms = request.Synonyms,
+                Tags = request.Tags,
+                Types = request.Types,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+            };
 
-                word = await _repository.AddWord(word);
+            await _wordsCollection.InsertOneAsync(word);
 
-                return new ExecutionOutcome<Word>() { Data = word, IsSuccessful = true };
-            }
-            catch(Exception ex)
-            {
-                return new ExecutionOutcome<Word>() { Exception = ex, IsSuccessful = false };
-            }
+            return word;
         }
 
         public async Task<ExecutionOutcome<Word>> EditWord(Word request) {
@@ -155,13 +121,9 @@ namespace core.Services
                 if (string.IsNullOrWhiteSpace(request.Id) || request.Id.Length != 24) {
                     throw new BadHttpRequestException("Invalid Id");
                 }
-
-                var userId = _identityService.GetUserId();
-
                 request.UpdatedAt = DateTime.UtcNow;
-
-                var result = await _repository.EditWord(userId, request);
-
+                var filter = Builders<Word>.Filter.Where(word => word.Id != null && word.Id.Equals(request.Id));
+                var result = await _wordsCollection.ReplaceOneAsync(filter, request);
                 return new ExecutionOutcome<Word>() {
                     IsSuccessful = true,
                     Data = request
@@ -172,21 +134,6 @@ namespace core.Services
                     IsSuccessful = false,
                     Exception = e
                  };
-            }
-        }
-
-        public async Task<ExecutionOutcome<List<Word>>> GetWordsRange(WordType type, DateTime startDate, DateTime endDate)
-        {
-            try
-            {
-                var builder = Builders<Word>.Filter;
-                var filter = builder.Where(word => word.Types.Contains(type) && word.UpdatedAt >= startDate && word.UpdatedAt <= endDate);
-                var words = await _repository.GetWords(_identityService.GetUserId(), null, null, filter);
-                return new ExecutionOutcome<List<Word>>() { IsSuccessful = true, Data = words };
-            }
-            catch (Exception ex)
-            {
-                return new ExecutionOutcome<List<Word>>() { IsSuccessful = false, Exception = ex };
             }
         }
 

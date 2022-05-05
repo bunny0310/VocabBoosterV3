@@ -2,41 +2,31 @@
 using Microsoft.Extensions.Options;
 using core.Models.Data;
 using core.Services;
-using core.Repositories;
 
 namespace core
 {
     public class ServiceFactory
     {
+        private readonly IOptions<VocabBoosterDatabaseSettings> _vocabBoosterDatabaseSettings;
 
-        private IWordsService _wordsService;
-        private ITokenService _tokenService;
-        private IUserService _userService;
-
-        public ServiceFactory(IIdentityService identityService)
+        public ServiceFactory(
+            IOptions<VocabBoosterDatabaseSettings> vocabBoosterDatabaseSettings)
         {
-            var wordsRepository = new WordsRepository();
-            _wordsService = new WordsService(wordsRepository, identityService);
-
-            var usersRepository = new UsersRepository();
-            _userService = new UserService(usersRepository);
-            
-            _tokenService = new TokenService();
+            _vocabBoosterDatabaseSettings = vocabBoosterDatabaseSettings;
         }
-
         public IWordsService WordsService()
         {
-            return _wordsService;
+            return new WordsService(_vocabBoosterDatabaseSettings);
         }
 
         public IUserService UserService()
         {
-            return _userService;
+            return new UserService(_vocabBoosterDatabaseSettings);
         }
 
         public ITokenService TokenService()
         {
-            return _tokenService;
+            return new TokenService();
         }
     }
 }

@@ -1,1 +1,0 @@
-mongoimport --host atlas-rty99h-shard-0/qa-vocabbooster-shard-00-02.vyypq.mongodb.net:27017,qa-vocabbooster-shard-00-01.vyypq.mongodb.net:27017,qa-vocabbooster-shard-00-00.vyypq.mongodb.net:27017 --username evenable --password ishaan123 --authenticationDatabase admin --db db --collection words --type json --file words.json --ssl
