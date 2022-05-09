@@ -81,7 +81,7 @@ namespace tests
             var incorrectServiceCall = await _testUsersService.AuthenticateUser(incorrectAuthenticationRequest);
 
             Assert.True(correctServiceCall.IsSuccessful);
-            Assert.True(incorrectServiceCall.IsSuccessful);
+            Assert.False(incorrectServiceCall.IsSuccessful);
             Assert.Equal(user.Email, correctServiceCall.Data?.Email);
         }
 
