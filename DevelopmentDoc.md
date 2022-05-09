@@ -33,9 +33,12 @@ Vocab Booster is a cross platform application that allows the users to maintain 
 
 6. **Security (Bad Practice)** - Due to time constraints and other more important user stories, we didn't strengthen the security of our authentication system. The passwords are verbatim stored in the database without being encrypted using some hashing algorthim such as SHA256.
 
+## Testing Plan and Experimental Evaluation
+Like mentioned above, we wrote unit tests to test our backend services. These tests can be run either by running the command `dotnet test` from the `dotnet/tests` subdirectory or installing the extension **.NET Core Test Explorer** in VS Code. Additionally, our automation script runs these tests before deploying to the QA environment. We performed manual testing on the UI.
+
 ## How to Run
 1. **Local Build** - Follow the steps outlined in the README.md file.
-2. **QA environment** - We wrote a Github Actions automation script that packages the two backend APIs and the UI into their individual Docker containers and deploys them to Heroku every time there's a push to the **CS520** branch in order to simulate a test environment. The QA environment uses MongoDB Atlas cloud store as the database layer. This database has already been populated with some test data. Access the test version of the app [here](https://qa-vb-ui.herokuapp.com/) and log in using the following credentials:
+2. **QA environment** - We wrote a Github Actions automation script that packages the two backend APIs and the UI into their individual Docker containers and deploys them to Heroku every time there's a push to the **CS520** branch in order to simulate a test environment. The QA environment uses MongoDB Atlas cloud store as the database layer. This database has already been populated with some test data. Additionally, the Dockerfiles used durin the build to QA runs the dotnet tests and halts the build in case any of the tests fail. Access the test version of the app [here](https://qa-vb-ui.herokuapp.com/) and log in using the following credentials:
   **Email** - hconboy@cs.umass.edu
   **Password** - heather123
   
