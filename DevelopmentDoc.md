@@ -7,7 +7,7 @@ Vocab Booster is a cross platform application that allows the users to maintain 
 ## Architecture Diagram
 <img width="369" alt="image" src="https://user-images.githubusercontent.com/7733516/167052497-87bc9ef7-0a47-4853-ac31-a057bcf397ad.png">
 
-## Design Patterns
+## Design Patterns & Best Code Practices
 
 1. **Modularity** - In software engineering, modularity refers to the extent to which a software/Web application may be divided into smaller modules. Modularity is successful because developers use prewritten code, which saves resources. Overall, modularity provides greater software development manageability. We have broken down our backend system into four projects, namely `words`, `auth`, `core` and `tests`. The **core** project houses code common to both the API projects such as services, middlewares, model classes, request/response classes etc. The **words** and **auth** projects only consist of the controller classes, derive much of their business logic from the **core** project and use it as their project dependency. Similarly, the **test** project, which is reponsible for testing the service methods also uses **core** as its project dependency. 
 <img width="328" alt="image" src="https://user-images.githubusercontent.com/7733516/167054708-8037a268-385e-483b-929a-578a83bc668d.png">
@@ -27,9 +27,18 @@ Vocab Booster is a cross platform application that allows the users to maintain 
 
 <img width="798" alt="image" src="https://user-images.githubusercontent.com/7733516/167323441-ae3393f4-01d2-428f-b936-e6e69fe53770.png">
 
+5. **Type Safety** - Each word has one or more types associated with it, such as adjective, noun, verb etc. In order to ensure type safety, we use enums to perform operations on the type property of a word, as opposed to free text(string data type). The types are stored as a list of numbers in the mongoDB collection.
 
+<img width="320" alt="image" src="https://user-images.githubusercontent.com/7733516/167324367-ac9c40d1-0c2c-4c3d-a6c3-cdc67f596fea.png">
 
+6. **Security (Bad Practice)** - Due to time constraints and other more important user stories, we didn't strengthen the security of our authentication system. The passwords are verbatim stored in the database without being encrypted using some hashing algorthim such as SHA256.
 
+## How to Run
+1. **Local Build** - Follow the steps outlined in the README.md file.
+2. **QA environment** - We wrote a Github Actions automation script that packages the two backend APIs and the UI into their individual Docker containers and deploys them to Heroku every time there's a push to the **CS520** branch in order to simulate a test environment. The QA environment uses MongoDB Atlas cloud store as the database layer. This database has already been populated with some test data. Access the test version of the app [here](https://qa-vb-ui.herokuapp.com/) and log in using the following credentials:
+  **Email** - hconboy@cs.umass.edu
+  **Password** - heather123
+  
 ## Sources (For Definitions of design patterns)
 1. [Stack Overflow](http://stackoverflow.com)
 2. [Dev IQ](deviq.com)
