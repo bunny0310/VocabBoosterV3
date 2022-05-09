@@ -12,6 +12,12 @@ COPY core/*.csproj ./
 RUN dotnet restore
 COPY core/. ./
 
+WORKDIR /tests
+COPY tests/*.csproj ./
+RUN dotnet restore
+COPY tests/. ./
+RUN dotnet test  --filter UsersTest
+
 WORKDIR ../app
 COPY auth/*.csproj ./
 RUN dotnet restore
