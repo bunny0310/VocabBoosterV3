@@ -1,5 +1,5 @@
 ## Vocab Booster
-A cross platform application that allows users to keep track of their words and always be up to date on their vocabulary.
+A cross platform application that allows users to keep track of their words and always be up to date on their vocabulary. [Click here](https://github.com/bunny0310/VocabBoosterV3/blob/CS520/DevelopmentDoc.md) to access the developer document.
 
 ### Requirements
 1. .NET Core [Installation](https://dotnet.microsoft.com/en-us/download)
