@@ -88,7 +88,7 @@ export const AddWordForm = (props: AddWordFormProps) => {
                                         <Form>
                                             <IonItemDivider color={formikProps.errors.name && formikProps.touched.name ? 'danger': 'primary'} >
                                                 <IonLabel>
-                                                    Name 
+                                                    Name * 
                                                 </IonLabel>
                                             </IonItemDivider>
                                             <Field 
@@ -104,7 +104,7 @@ export const AddWordForm = (props: AddWordFormProps) => {
                                             />
                                             <IonItemDivider color={formikProps.errors.meaning && formikProps.touched.meaning ? 'danger': 'primary'} >
                                                 <IonLabel>
-                                                    Meaning
+                                                    Meaning *
                                                 </IonLabel>
                                             </IonItemDivider>
                                             <Field 
@@ -120,12 +120,12 @@ export const AddWordForm = (props: AddWordFormProps) => {
                                             />
                                             <IonItemDivider color={formikProps.errors.sentences && formikProps.touched.sentences ? 'danger': 'primary'} >
                                                 <IonLabel>
-                                                    Sentences
+                                                    Sentences *
                                                 </IonLabel>
                                             </IonItemDivider>
                                             <Field 
                                                 as={FormChipInput}
-                                                placeholder={'Add sentences'}
+                                                placeholder={'Press Enter to Add a Sentence'}
                                                 name={'sentences'}
                                                 values={formikProps.values.sentences}
                                                 onSentenceChipUpdate={(data: string[]) => {
@@ -140,12 +140,12 @@ export const AddWordForm = (props: AddWordFormProps) => {
                                             />
                                             <IonItemDivider color={formikProps.errors.synonyms && formikProps.touched.synonyms ? 'danger': 'primary'} >
                                                 <IonLabel>
-                                                    Synonyms
+                                                    Synonyms *
                                                 </IonLabel>
                                             </IonItemDivider>
                                             <Field 
                                                 as={FormChipInput}
-                                                placeholder={'Add synonyms'}
+                                                placeholder={'Press Enter to Add a Synonym'}
                                                 name={'synonyms'}
                                                 values={formikProps.values.synonyms}
                                                 onSentenceChipUpdate={(data: string[]) => {
@@ -165,7 +165,7 @@ export const AddWordForm = (props: AddWordFormProps) => {
                                             </IonItemDivider> 
                                             <Field 
                                                 as={FormChipInput}
-                                                placeholder={'Add tags'}
+                                                placeholder={'Press Enter to Add a Tag'}
                                                 name={'tags'}
                                                 values={formikProps.values.tags}
                                                 onSentenceChipUpdate={(data: string[]) => {
@@ -175,7 +175,7 @@ export const AddWordForm = (props: AddWordFormProps) => {
                                             /> 
                                             <IonItemDivider color={formikProps.errors.types && formikProps.touched.types ? 'danger': 'primary'} >
                                                 <IonLabel>
-                                                    Types
+                                                    Types *
                                                 </IonLabel>
                                             </IonItemDivider> 
                                             <Field
