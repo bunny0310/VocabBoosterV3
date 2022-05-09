@@ -1,6 +1,6 @@
 
 name: Deploy Auth and Words APIs, and UI to QA Heroku
-
+concurrency: deployment
 on: 
   push:
     branches: [ CS520 ]
