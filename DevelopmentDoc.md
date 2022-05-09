@@ -23,8 +23,15 @@ Vocab Booster is a cross platform application that allows the users to maintain 
 
 <img width="911" alt="image" src="https://user-images.githubusercontent.com/7733516/167055253-db207998-6ff1-458a-bb6e-5c5c38da8b60.png">
 
+4. **The Mock Object Pattern** - The pattern isolates the class being tested from an entity it depends upon. In order to efficiently test the backend services, we outsourced the database related tasks to the repository classes which are accepted by the service classes as a constructor parameter. While unit testing the services, we mock the repository interfaces and supply them to the constructor while instantiating the test service objects.
+
+<img width="798" alt="image" src="https://user-images.githubusercontent.com/7733516/167323441-ae3393f4-01d2-428f-b936-e6e69fe53770.png">
+
+
+
 
 ## Sources (For Definitions of design patterns)
 1. [Stack Overflow](http://stackoverflow.com)
 2. [Dev IQ](deviq.com)
+3. [PMI, Disciplined Agile](https://www.pmi.org/disciplined-agile/the-design-patterns-repository/the-mock-object-pattern)
 
