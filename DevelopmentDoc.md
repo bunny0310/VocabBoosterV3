@@ -39,7 +39,7 @@ Like mentioned above, we wrote unit tests to test our backend services. These te
 <img width="463" alt="image" src="https://user-images.githubusercontent.com/7733516/167325492-6825032b-926e-4486-8691-25ea1b4100b3.png">
 
 ## How to Run
-1. **Local Build** - Follow the steps outlined in the README.md file.
+1. **Local Build** - Follow the steps outlined in the README.md file. [Click here](https://github.com/bunny0310/VocabBoosterV3/blob/CS520/README.md) to access it.
 2. **QA environment** - We wrote a Github Actions automation script that packages the two backend APIs and the UI into their individual Docker containers and deploys them to Heroku every time there's a push to the **CS520** branch in order to simulate a test environment. The QA environment uses MongoDB Atlas cloud store as the database layer. This database has already been populated with some test data. Additionally, the Dockerfiles used durin the build to QA runs the dotnet tests and halts the build in case any of the tests fail. Access the test version of the app [here](https://qa-vb-ui.herokuapp.com/) and log in using the following credentials:
   **Email** - hconboy@cs.umass.edu
   **Password** - heather123
