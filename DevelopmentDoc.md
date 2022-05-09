@@ -36,6 +36,8 @@ Vocab Booster is a cross platform application that allows the users to maintain 
 ## Testing Plan and Experimental Evaluation
 Like mentioned above, we wrote unit tests to test our backend services. These tests can be run either by running the command `dotnet test` from the `dotnet/tests` subdirectory or installing the extension **.NET Core Test Explorer** in VS Code. Additionally, our automation script runs these tests before deploying to the QA environment. We performed manual testing on the UI.
 
+<img width="463" alt="image" src="https://user-images.githubusercontent.com/7733516/167325492-6825032b-926e-4486-8691-25ea1b4100b3.png">
+
 ## How to Run
 1. **Local Build** - Follow the steps outlined in the README.md file.
 2. **QA environment** - We wrote a Github Actions automation script that packages the two backend APIs and the UI into their individual Docker containers and deploys them to Heroku every time there's a push to the **CS520** branch in order to simulate a test environment. The QA environment uses MongoDB Atlas cloud store as the database layer. This database has already been populated with some test data. Additionally, the Dockerfiles used durin the build to QA runs the dotnet tests and halts the build in case any of the tests fail. Access the test version of the app [here](https://qa-vb-ui.herokuapp.com/) and log in using the following credentials:
