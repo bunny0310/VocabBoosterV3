@@ -165,6 +165,7 @@ export const FormChipInput = (props: FormChipInputProps) => {
                     <IonInput
                         className={"formField"}
                         name={props.name}
+                        value={value}
                         onKeyUp={e => keyPressHandler(e, EditItemOrInput.Input)}
                         onIonChange={e => onChangehandler(e, EditItemOrInput.Input)} 
                         onIonBlur={(e: CustomEvent<FocusEvent>) => {props.onBlur && props.onBlur(e)}}
