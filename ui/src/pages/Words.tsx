@@ -1,4 +1,5 @@
 import {
+  IonChip,
   IonContent,
   IonInfiniteScroll,
   IonInfiniteScrollContent,
@@ -182,6 +183,29 @@ export class Words extends React.Component<RouteComponentProps, WordsState> {
     return status
   }
 
+  renderSearchComponents = () => {
+    const { searching, filter } = this.state.searchOptions
+
+    const renderFilterChip = () => {
+      const searchValue = filter?.searchValue
+      return (
+        <>
+          {searchValue && <IonChip style={{position: 'fixed', zIndex: '999', right: '20px'}}>
+            <b>Filter: </b>{searchValue.substring(0, Math.min(6, searchValue.length))}{searchValue.length > 6 && '...'}
+            </IonChip>
+          }
+        </>
+      )
+    }
+
+    return (
+      <div className='searchComponents'>
+        {searching && <IonProgressBar type="indeterminate" />}
+        {filter && renderFilterChip()}
+      </div>
+    )
+  }
+
   render(): React.ReactNode {
     const words = this.state.words;
     return (
@@ -192,52 +216,56 @@ export class Words extends React.Component<RouteComponentProps, WordsState> {
       </IonRefresher>
 
       <IonToolbar
-        
+        style={{position: 'fixed'}}
       >
         <IonSearchbar
           placeholder={"Search for a word"}
           onIonChange={e => this.searchWords(e.detail.value ?? '')}
         />
       </IonToolbar>
-      {this.state.searchOptions.searching && <IonProgressBar type="indeterminate" />}
       
-      <div>
-        {this.state.status === ApiCallStatus.SUCCESS &&
-          this.state.words.length > 0 && 
-              <> 
-                {words.map((word, i) => {
-                  return (
-                    <Word
-                      key={i}
-                      id={word.id}
-                      name={word.name}
-                      meaning={word.meaning}
-                      sentences={word.sentences}
-                      synonyms={word.synonyms}
-                      tags={word.tags}
-                      types={word.types}
-                      audioHandler={this.audioHandler}
-                      audio={this.state.audio}
-                      handleDeleteWord={this.deleteWordHandler}
-                      {...this.props}
+      <div style={{marginTop: '60px'}}>
+
+        {this.renderSearchComponents()}
+
+        <div style={{marginTop: '50px'}}>
+          {this.state.status === ApiCallStatus.SUCCESS &&
+            this.state.words.length > 0 && 
+                <> 
+                  {words.map((word, i) => {
+                    return (
+                      <Word
+                        key={i}
+                        id={word.id}
+                        name={word.name}
+                        meaning={word.meaning}
+                        sentences={word.sentences}
+                        synonyms={word.synonyms}
+                        tags={word.tags}
+                        types={word.types}
+                        audioHandler={this.audioHandler}
+                        audio={this.state.audio}
+                        handleDeleteWord={this.deleteWordHandler}
+                        {...this.props}
+                      />
+                    )
+                  })}
+                  <IonInfiniteScroll
+                    onIonInfinite={this.loadData}
+                    threshold="50px"
+                    disabled={this.state.infiniteDisabled}
+                  >
+                    <IonInfiniteScrollContent
+                      loadingSpinner="bubbles"
+                      loadingText="Loading more words..."
                     />
-                  )
-                })}
-                <IonInfiniteScroll
-                  onIonInfinite={this.loadData}
-                  threshold="50px"
-                  disabled={this.state.infiniteDisabled}
-                >
-                  <IonInfiniteScrollContent
-                    loadingSpinner="bubbles"
-                    loadingText="Loading more words..."
-                  />
-                </IonInfiniteScroll>
-              </>
-        }
-        {this.state.status === ApiCallStatus.SUCCESS && this.state.words.length === 0
-          && <NoWordFound />
-        }
+                  </IonInfiniteScroll>
+                </>
+          }
+          {this.state.status === ApiCallStatus.SUCCESS && this.state.words.length === 0
+            && <NoWordFound />
+          }
+        </div>
       </div>
 
         {(this.state.status === ApiCallStatus.PROCESSING || this.state.status === ApiCallStatus.FAIL) && (
