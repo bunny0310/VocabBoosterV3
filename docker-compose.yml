@@ -53,7 +53,7 @@ services:
       - MONGO_INITDB_DATABASE=db
     volumes:
       - ./database/data:/data/db
-      - ./database/scripts:/scripts
+      - ./database/refactor:/config
     container_name: vb_mongo
     ports:
       - 5003:27017
