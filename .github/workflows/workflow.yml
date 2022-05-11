@@ -74,6 +74,7 @@ jobs:
 
   app-ios-fix-pods:
     runs-on: macOS-latest
+    needs: [ app-ios ]
     steps:
     - uses: actions/checkout@v1
 
