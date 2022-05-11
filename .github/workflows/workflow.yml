@@ -56,7 +56,7 @@ jobs:
       run: heroku container:release web -a qa-vb-words
 
   app-ios:
-    runs-on: ubuntu-latest
+    runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v1
     - uses: ty0x2333/cocoapods-action@master
