@@ -58,10 +58,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-
     - uses: actions/setup-node@v3
       with:
         node-version: 14
+    - name: Install Ionic 
     - run: npm install -g ionic
-      working-directory: ./ui
+    - name: Build Ionic Project
     - run: ionic build
+      working-directory: ./ui
