@@ -85,6 +85,6 @@ jobs:
     
     - name: Fix Pods
       run: |
-        pod deintegrate
+        pod reintegrate 
         pod install
       working-directory: ./ui/ios/App
