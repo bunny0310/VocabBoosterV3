@@ -59,7 +59,6 @@ jobs:
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v1
-    - uses: ty0x2333/cocoapods-action@master
     - name: Build for iOS
       run: |
         npm install
