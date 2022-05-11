@@ -59,7 +59,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - name: Login to Heroku Container registry
-      env: 
-        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+    - name: Install Ionic 
       run: npm install -g ionic
+
+    - name: Build project
+      run: ionic build
+      working-directory: ./ui
