@@ -56,12 +56,9 @@ jobs:
       run: heroku container:release web -a vocabbooster-words
 
   app-ios:
-    runs-on: macOS-latest
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - uses: maxim-lobanov/setup-cocoapods@v1
-      with:
-        version: 1.9.0
     - name: Build for iOS
       run: |
         npm install
@@ -74,3 +71,19 @@ jobs:
       with:
         name: ios-build
         path: ui/ios
+
+  app-ios-fix-pods:
+    runs-on: macOS-latest
+    steps:
+    - uses: actions/checkout@v1
+
+    - uses: actions/download-artifact@master
+      with:
+        name: ios-build
+        path: ui/ios
+    
+    - name: Fix Pods
+      run: |
+        pod deintegrate
+        pod install
+      working-directory: ./ui/ios/App
