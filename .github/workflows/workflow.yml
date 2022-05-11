@@ -66,6 +66,7 @@ jobs:
         pod update
         pod install
         ionic capacitor build ios --no-open
+    - uses: ty0x2333/cocoapods-action@master
       working-directory: ./ui
 
     - name: Archive iOS build artifacts
