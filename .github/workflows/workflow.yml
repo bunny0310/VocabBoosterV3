@@ -65,6 +65,6 @@ jobs:
     - name: Install Ionic 
     - run: npm install -g ionic
 
-    - name: Build Ionic Project
-    - run: ionic build
-      working-directory: ./ui
+    # - name: Build Ionic Project
+    # - run: ionic build
+    #   working-directory: ./ui
