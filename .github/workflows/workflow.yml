@@ -67,7 +67,7 @@ jobs:
       working-directory: ./ui
 
     - name: Archive iOS build artifacts
-    - uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v3
       with:
         name: ios-build
         path: ui/ios
