@@ -64,6 +64,7 @@ jobs:
         node-version: 14
     - name: Install Ionic 
     - run: npm install -g ionic
+    
     - name: Build Ionic Project
     - run: ionic build
       working-directory: ./ui
