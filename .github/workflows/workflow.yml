@@ -58,13 +58,6 @@ jobs:
   app-ios:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    # - uses: actions/setup-node@v3
-    #   with:
-    #     node-version: 14
+    - uses: actions/checkout@v1
     - name: Install Ionic 
     - run: npm install -g ionic
-
-    # # - name: Build Ionic Project
-    # # - run: ionic build
-    # #   working-directory: ./ui
