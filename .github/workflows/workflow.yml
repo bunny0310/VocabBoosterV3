@@ -59,7 +59,9 @@ jobs:
     runs-on: macOS-latest
     steps:
     - uses: actions/checkout@v1
-    - uses: ruby/setup-ruby@v1 
+    - uses: maxim-lobanov/setup-cocoapods@v1
+      with:
+        version: 1.9.0
     - name: Build for iOS
       run: |
         npm install
