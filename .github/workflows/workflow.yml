@@ -4,6 +4,7 @@ concurrency: deployment
 on: 
   push:
     branches: [ V2.1 ]
+  workflow_dispatch:
 
 jobs:
   auth-api:
