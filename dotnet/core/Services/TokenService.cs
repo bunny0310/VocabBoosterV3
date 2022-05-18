@@ -14,8 +14,8 @@ namespace core.Services
         public ExecutionOutcome<string> BuildToken(string key, string issuer, UserDTO user) {
             try {
                 var claims = new[] {
-                    new Claim("data", user.FirstName),
-                    new Claim("data", user.Email)
+                    new Claim("firstName", user.FirstName),
+                    new Claim("email", user.Email)
                 };
 
                 var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));        
